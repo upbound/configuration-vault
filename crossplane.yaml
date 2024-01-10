@@ -1,0 +1,30 @@
+apiVersion: meta.pkg.crossplane.io/v1
+kind: Configuration
+metadata:
+  name: configuration-vault
+  annotations:
+    meta.crossplane.io/maintainer: The configuration-vault Configuration
+    meta.crossplane.io/source: github.com/upbound/configuration-vault
+    meta.crossplane.io/license: Apache-2.0
+    meta.crossplane.io/description: |
+      This configuration-vault configuration offers
+      auth, policy and secrets provisioning for HashiCorp
+      vault.
+    meta.crossplane.io/readme: |
+      This Configuration bundles an Upbound Cloud
+      extension and an API definition. The API will
+      allow control planes to provision HashiCorp
+      vault using the provider-vault from the Upbound
+      marketplace.
+spec:
+  crossplane:
+    version: ">=v1.14.5-0"
+  dependsOn:
+    - provider: xpkg.upbound.io/upbound/provider-vault
+      version: ">=v0.3.0"
+    - provider: xpkg.upbound.io/crossplane-contrib/provider-helm
+      version: ">=v0.16.0"
+    - provider: xpkg.upbound.io/crossplane-contrib/provider-kubernetes
+      version: ">=v0.11.1"
+    - function: xpkg.upbound.io/upbound/function-patch-and-transform
+      version: "v0.2.1"

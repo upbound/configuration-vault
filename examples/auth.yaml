@@ -1,0 +1,13 @@
+apiVersion: sec.upbound.io/v1alpha1
+kind: XAuth
+metadata:
+  name: configuration-vault-auth
+spec:
+  # compositeDeletePolicy: Foreground
+  parameters:
+    id: configuration-vault-auth
+    user: student
+    dataJsonSecretRef:
+      key: credentials
+      name: student-creds
+      namespace: vault

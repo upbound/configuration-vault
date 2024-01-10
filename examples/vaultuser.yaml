@@ -1,0 +1,7 @@
+apiVersion: sec.upbound.io/v1alpha1
+kind: VaultUser
+metadata:
+  name: configuration-vault-user
+spec:
+  parameters:
+    id: configuration-vault-user

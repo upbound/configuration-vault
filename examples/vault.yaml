@@ -1,0 +1,13 @@
+apiVersion: sec.upbound.io/v1alpha1
+kind: Vault
+metadata:
+  name: configuration-vault
+spec:
+  parameters:
+    id: configuration-vault
+    transitKeyName: payment
+    user: student
+    dataJsonSecretRef:
+      key: credentials
+      name: student-creds
+      namespace: vault

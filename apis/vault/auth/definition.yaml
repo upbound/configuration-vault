@@ -1,0 +1,106 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xauths.sec.upbound.io
+spec:
+  group: sec.upbound.io
+  names:
+    kind: XAuth
+    plural: xauths
+  claimNames:
+    kind: Auth
+    plural: auths
+  connectionSecretKeys:
+    - kubeconfig
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                parameters:
+                  type: object
+                  description: Vault auth configuration parameters.
+                  properties:
+                    id:
+                      type: string
+                      description: ->
+                        ID of this Vault that other
+                        objects will use to refer to it.
+                    dataJsonSecretRef:
+                      type: object
+                      description: >-
+                        JSON-encoded object that will be
+                        written to the given path as the
+                        secret data.
+                      properties:
+                        key:
+                          type: string
+                          description: >-
+                            The key to select.
+                        name:
+                          type: string
+                          description: >-
+                            Name of the secret.
+                        namespace:
+                          type: string
+                          description: >-
+                            Namespace of the secret.
+                    user:
+                      type: string
+                      description: >-
+                        User for which to write the data,
+                        e.g. student. The path where the
+                        where the data is written will be
+                        auth/userpass/users/<user>.
+                    vaultDeployedState:
+                      type: string
+                      description: >-
+                        State of the vault deployment State
+                        that this XAuth depends on.
+                    deletionPolicy:
+                      type: string
+                      description: >-
+                        DeletionPolicy specifies what will
+                        happen to the underlying external
+                        resource when this managed resource
+                        is deleted - either "Delete" or "Orphan"
+                        the external resource. This field is
+                        planned to be deprecated in favor of
+                        the ManagementPolicies field in a future
+                        release. Currently, both could be set
+                        independently and non-default values
+                        would be honored if the feature flag is
+                        enabled.
+                      enum:
+                        - Delete
+                        - Orphan
+                      default: Delete
+                    providerConfigName:
+                      description: ->
+                        Crossplane ProviderConfig to
+                        use for provisioning this resources.
+                      type: string
+                      default: vault-provider-config
+                  required:
+                    - id
+                    - dataJsonSecretRef
+                    - user
+              required:
+                - parameters
+            status:
+              type: object
+              description: Vault auth status.
+              properties:
+                vaultAuthBackendUserpass:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                vaultGenericEndpoint:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true

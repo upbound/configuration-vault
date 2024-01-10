@@ -1,0 +1,43 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  creationTimestamp: "2024-01-25T00:34:25Z"
+  name: xvaultusers.sec.upbound.io
+spec:
+  compositeTypeRef:
+    apiVersion: sec.upbound.io/v1alpha1
+    kind: XVaultUser
+  mode: Pipeline
+  pipeline:
+    - functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          - base:
+              apiVersion: kubernetes.crossplane.io/v1alpha1
+              kind: Object
+              metadata:
+                name: kubernetes-vault-creds-secret
+              spec:
+                deletionPolicy: Delete
+                forProvider:
+                  manifest:
+                    apiVersion: v1
+                    kind: Secret
+                    metadata:
+                      name: student-creds
+                      namespace: vault
+                    stringData:
+                      credentials: |
+                        {
+                          "policies": ["admin-policy", "eaas-client-policy"],
+                          "password": "changeme"
+                        }
+                    type: Opaque
+                providerConfigRef:
+                  name: kubernetes-provider-config
+            name: vault-creds
+      step: patch-and-transform
