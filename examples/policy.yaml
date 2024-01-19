@@ -1,0 +1,7 @@
+apiVersion: sec.upbound.io/v1alpha1
+kind: XPolicy
+metadata:
+  name: configuration-vault-policy
+spec:
+  parameters:
+    id: configuration-vault-policy

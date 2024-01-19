@@ -1,0 +1,73 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xpolicys.sec.upbound.io
+spec:
+  group: sec.upbound.io
+  names:
+    kind: XPolicy
+    plural: xpolicys
+  claimNames:
+    kind: Policy
+    plural: policys
+  connectionSecretKeys:
+    - kubeconfig
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                parameters:
+                  type: object
+                  description: Vault policy configuration parameters.
+                  properties:
+                    id:
+                      type: string
+                      description: ->
+                        ID of this Vault policy that other
+                        objects will use to refer to it.
+                    deletionPolicy:
+                      type: string
+                      description: >-
+                        DeletionPolicy specifies what will
+                        happen to the underlying external
+                        resource when this managed resource
+                        is deleted - either "Delete" or "Orphan"
+                        the external resource. This field is
+                        planned to be deprecated in favor of
+                        the ManagementPolicies field in a future
+                        release. Currently, both could be set
+                        independently and non-default values
+                        would be honored if the feature flag is
+                        enabled.
+                      enum:
+                        - Delete
+                        - Orphan
+                      default: Delete
+                    providerConfigName:
+                      description: ->
+                        Crossplane ProviderConfig to
+                        use for provisioning this resources.
+                      type: string
+                      default: vault-provider-config
+                  required:
+                    - id
+              required:
+                - parameters
+            status:
+              type: object
+              description: Vault auth status.
+              properties:
+                vaultAdminPolicy:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                vaultEaasClientPolicy:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true

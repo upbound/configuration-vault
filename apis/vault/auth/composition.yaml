@@ -1,0 +1,63 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xauths.sec.upbound.io
+spec:
+  writeConnectionSecretsToNamespace: upbound-system
+  compositeTypeRef:
+    apiVersion: sec.upbound.io/v1alpha1
+    kind: XAuth
+  resources:
+    - name: userpass-auth-backend
+      base:
+        apiVersion: auth.vault.upbound.io/v1alpha1
+        kind: Backend
+        spec:
+          forProvider:
+            description: Userpass auth backend for UXP managed Vault.
+            disableRemount: false
+            type: "userpass"
+      patches:
+        - fromFieldPath: spec.parameters.id
+          toFieldPath: metadata.name
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-backend-userpass"
+        - fromFieldPath: spec.parameters.providerConfigName
+          toFieldPath: spec.providerConfigRef.name
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider
+          toFieldPath: status.vaultAuthBackendUserpass
+    - name: generic-endpoint
+      base:
+        apiVersion: generic.vault.upbound.io/v1alpha1
+        kind: Endpoint
+        spec:
+          forProvider:
+            disableDelete: false
+            disableRead: false
+            ignoreAbsentFields: true
+      patches:
+        - fromFieldPath: spec.parameters.id
+          toFieldPath: metadata.name
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-generic-endpoint"
+        - fromFieldPath: spec.parameters.user
+          toFieldPath: spec.forProvider.path
+          policy:
+            fromFieldPath: Required
+          transforms:
+            - type: string
+              string:
+                fmt: "auth/userpass/users/%s"
+        - fromFieldPath: spec.parameters.dataJsonSecretRef
+          toFieldPath: spec.forProvider.dataJsonSecretRef
+        - fromFieldPath: spec.parameters.providerConfigName
+          toFieldPath: spec.providerConfigRef.name
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider
+          toFieldPath: status.vaultGenericEndpoint

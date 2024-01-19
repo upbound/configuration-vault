@@ -1,5 +1,5 @@
 # configuration-vault
-Codify management of Vault using Crossplane.
+Automate the management of Vault using Crossplane.
 
 ## Personas
 
