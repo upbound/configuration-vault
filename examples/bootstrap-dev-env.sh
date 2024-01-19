@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR=$( cd -- $( dirname -- "${BASH_SOURCE[0]}" ) &> /dev/null && pwd )
+export VAULT_TOKEN="root"
 
 kind create cluster --name uxp
 up uxp install
@@ -13,15 +14,6 @@ helm install vault hashicorp/vault -n vault --set "server.dev.enabled=true" --se
 kubectl -n vault wait \
     --for=condition=Available deployment --all \
     --timeout=5m
-
-VAULT_POD_IP=""
-while [[ "${VAULT_POD_IP}" == "" ]]; do
-	export VAULT_POD_IP=$(kubectl -n vault get pod vault-0 -o yaml|grep podIP:|awk '{print $2}')
-	sleep 5
-done
-
-export VAULT_TOKEN="root"
-export VAULT_ADDR="$VAULT_POD_IP:8200"
 
 cat <<EOF|kubectl apply -f -
 apiVersion: pkg.crossplane.io/v1
@@ -71,7 +63,7 @@ kind: ProviderConfig
 metadata:
   name: vault-provider-config
 spec:
-  address: http://$VAULT_ADDR
+  address: http://vault.vault:8200
   add_address_to_env: false
   headers: {name: test, value: "e2e"}
   max_lease_ttl_seconds: 300
