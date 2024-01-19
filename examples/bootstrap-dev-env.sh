@@ -4,11 +4,15 @@ SCRIPT_DIR=$( cd -- $( dirname -- "${BASH_SOURCE[0]}" ) &> /dev/null && pwd )
 
 kind create cluster --name uxp
 up uxp install
-kubectl -n upbound-system wait --for=condition=Available deployment --all --timeout=5m
+kubectl -n upbound-system wait \
+    --for=condition=Available deployment --all \
+    --timeout=5m
 
 kubectl create namespace vault
 helm install vault hashicorp/vault -n vault --set "server.dev.enabled=true" --set "server.dev.devRootToken=root"
-kubectl -n vault wait --for=condition=Available deployment --all --timeout=5m
+kubectl -n vault wait \
+    --for=condition=Available deployment --all \
+    --timeout=5m
 
 VAULT_POD_IP=""
 while [[ "${VAULT_POD_IP}" == "" ]]; do
@@ -58,7 +62,9 @@ stringData:
     }
 EOF
 
-kubectl wait provider.pkg --all --for condition=Healthy --timeout 5m
+kubectl wait provider.pkg --all \
+    --for condition=Healthy \
+    --timeout 5m
 cat <<EOF | kubectl apply -f -
 apiVersion: vault.upbound.io/v1beta1
 kind: ProviderConfig
@@ -92,8 +98,15 @@ find ${SCRIPT_DIR}/../apis/vault -name "composition.yaml"|\
     while read y; do kubectl apply -f $y; done
 
 kubectl apply -f ${SCRIPT_DIR}/../examples/vault.yaml
-kubectl wait vault.sec.upbound.io configuration-vault --for condition="Ready"
+kubectl wait vault.sec.upbound.io configuration-vault \
+    --for condition="Ready" \
+    --timeout 5m
 crossplane beta trace vault.sec.upbound.io configuration-vault
 
-kubectl -n vault port-forward vault-0 8200 2>&1 >/dev/null &
+kubectl -n vault port-forward vault-0 8200 2>&1 >/dev/null & 
+sleep 10
 ${SCRIPT_DIR}/../test/verify.sh 2>/dev/null
+
+echo "export VAULT_ADDR=http://127.0.0.1:8200"
+echo "so that the vault client will be able to connect to the server"
+export VAULT_ADDR=http://127.0.0.1:8200

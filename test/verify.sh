@@ -1,16 +1,12 @@
 #!/bin/sh
 
-echo "\n=== Policies ==="
-curl -H "X-Vault-Token: root" -X GET "http://127.0.0.1:8200/v1/sys/policies/acl?list=true"|jq .data.keys.[]|tr -d '"'
+export VAULT_ADDR="http://127.0.0.1:8200"
 
-echo "\n=== Mount Path ==="
-curl -H "X-Vault-Token: root" -X GET "http://127.0.0.1:8200/v1/sys/mounts"|jq '.data.[].'|tr -d '"'
-
-echo "\n=== Mount Accessors ==="
-curl -H "X-Vault-Token: root" -X GET "http://127.0.0.1:8200/v1/sys/mounts"|jq '.data.[].accessor'|tr -d '"'
-
-echo "\n=== Mount Types ==="
-curl -H "X-Vault-Token: root" -X GET "http://127.0.0.1:8200/v1/sys/mounts"|jq '.data.[].type'|tr -d '"'
-
-echo "\n=== Payment Transit Key ==="
-curl -H "X-Vault-Token: root" -X GET "http://127.0.0.1:8200/v1/transit/keys?list=true"|jq .data.keys.[]|tr -d '"'
+vault policy list
+vault secrets list
+vault list transit/keys
+unset VAULT_TOKEN
+echo "enter password changeme at the prompt"
+vault login -method=userpass username=student
+vault write transit/encrypt/payment \
+     plaintext=$(base64 <<< "1111-2222-3333-4444")
