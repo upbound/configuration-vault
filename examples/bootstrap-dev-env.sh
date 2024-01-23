@@ -1,15 +1,12 @@
 #!/bin/bash
 
 SCRIPT_DIR=$( cd -- $( dirname -- "${BASH_SOURCE[0]}" ) &> /dev/null && pwd )
-export VAULT_TOKEN="root"
 
 kind create cluster --name uxp
 up uxp install
 kubectl -n upbound-system wait \
     --for=condition=Available deployment --all \
     --timeout=5m
-
-kubectl create namespace vault
 
 cat <<EOF|kubectl apply -f -
 apiVersion: pkg.crossplane.io/v1
@@ -59,10 +56,8 @@ kubectl create clusterrolebinding provider-helm-admin-binding --clusterrole clus
 
 find ${SCRIPT_DIR}/../apis -name "definition.yaml"|\
     while read y; do kubectl apply -f $y; done
-
 find ${SCRIPT_DIR}/../apis -name "composition.yaml"|\
     while read y; do kubectl apply -f $y; done
-
 kubectl apply -f ${SCRIPT_DIR}/../examples/vault.yaml
 
 kubectl wait vault.sec.upbound.io configuration-vault \

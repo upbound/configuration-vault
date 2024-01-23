@@ -67,6 +67,19 @@ spec:
 #               name: apiserver-cluster-role
 #         providerConfigRef:
 #           name: kubernetes-provider-config
+    - name: vault-namespace
+      base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        spec:
+          forProvider:
+            manifest:
+              apiVersion: v1
+              kind: Namespace
+              metadata:
+                name: vault
+          providerConfigRef:
+            name: kubernetes-provider-config
     - name: vault-creds
       base:
         apiVersion: kubernetes.crossplane.io/v1alpha1

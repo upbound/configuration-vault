@@ -12,10 +12,13 @@ spec:
       base:
         apiVersion: sec.upbound.io/v1alpha1
         kind: XVaultInstall
-        spec:
-          parameters:
-            id: configuration-vault-install
       patches:
+        - fromFieldPath: spec.parameters.id
+          toFieldPath: spec.parameters.id
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-install"
         - type: ToCompositeFieldPath
           fromFieldPath: status.xVaultInstall
           toFieldPath: status.vaultXVaultInstall
@@ -50,10 +53,6 @@ spec:
       patches:
         - fromFieldPath: spec.parameters.id
           toFieldPath: spec.parameters.id
-          transforms:
-            - type: string
-              string:
-                fmt: "%s-secrets"
         - fromFieldPath: spec.parameters.transitKeyName
           toFieldPath: spec.parameters.transitKeyName
         - fromFieldPath: status.vaultXVaultInstall.state
@@ -70,10 +69,6 @@ spec:
       patches:
         - fromFieldPath: spec.parameters.id
           toFieldPath: spec.parameters.id
-          transforms:
-            - type: string
-              string:
-                fmt: "%s-policy"
         - fromFieldPath: status.vaultXVaultInstall.state
           toFieldPath: spec.parameters.vaultDeployedState
           policy:

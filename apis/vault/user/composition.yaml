@@ -27,7 +27,7 @@ spec:
               stringData:
                 credentials: |
                   {
-                    "policies": ["admins", "eaas-client"],
+                    "policies": ["admin-policy", "eaas-client-policy"],
                     "password": "changeme"
                   }
             type: Opaque

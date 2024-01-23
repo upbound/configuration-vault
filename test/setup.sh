@@ -22,6 +22,8 @@ echo_info "Running setup.sh"
 
 SCRIPT_DIR=$( cd -- $( dirname -- "${BASH_SOURCE[0]}" ) &> /dev/null && pwd )
 
+kind create cluster --name uxp
+
 echo_info "Checking for kubeconfig"
 KUBECONFIG_PATH="${SCRIPT_DIR}/../kubeconfig"
 if [ -f "${KUBECONFIG_PATH}" ]; then
@@ -33,10 +35,21 @@ UPBOUND_SYSTEM_NAMESPACE=$(${KUBECTL} get ns|grep upbound-system|awk '{print $1}
 if [[ "${UPBOUND_SYSTEM_NAMESPACE}" != "upbound-system" ]]; then
     echo "${UPBOUND_SYSTEM_NAMESPACE}"
     up uxp install
-    sleep 15 # Add a readiness check
 fi
 
-echo_info "Installing provider vault"
+${KUBECTL} -n ${UPBOUND_SYSTEM_NAMESPACE} wait \
+    --for=condition=Available deployment --all \
+    --timeout=5m
+
+cat <<EOF|${KUBECTL} apply -f -
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-kubernetes
+spec:
+  package: xpkg.upbound.io/crossplane-contrib/provider-kubernetes:v0.11.1
+EOF
+
 cat <<EOF|${KUBECTL} apply -f -
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
@@ -46,109 +59,53 @@ spec:
   package: xpkg.upbound.io/upbound/provider-vault:v0.3.0
 EOF
 
-echo_info "Creating cloud credential secret..."
-${KUBECTL} -n upbound-system create secret generic provider-secret --from-literal=credentials="{\"token\":\"${UPTEST_CLOUD_CREDENTIALS}\"}" --dry-run=client -o yaml | ${KUBECTL} apply -f -
-echo_info "Waiting until provider is healthy..."
-${KUBECTL} wait provider.pkg --all --for condition=Healthy --timeout 5m
-
-echo_info "Waiting for all pods to come online..."
-${KUBECTL} -n upbound-system wait --for=condition=Available deployment --all --timeout=5m
-
-echo_info "Creating vault namespace"
-${KUBECTL} create namespace vault --dry-run=client -o yaml | kubectl apply -f -
-
-echo_info "Adding Hashicorp repo"
-helm repo add hashicorp https://helm.releases.hashicorp.com --force-update
-
-echo_info "Checking for HashiCorp Vault installation"
-VAULT_DEPLOYMENT_STATUS=$(helm status vault -n vault|grep STATUS || true)
-echo_info "$VAULT_DEPLOYMENT_STATUS"
-if [[ "$VAULT_DEPLOYMENT_STATUS" == "STATUS: deployed" ]]; then
-    echo "Uninstalling Hashicorp vault; need clean installation"
-    helm uninstall vault -n vault --wait
-fi
-
-helm install vault hashicorp/vault -n vault
-
-echo_info "Waiting for vault deployments"
-${KUBECTL} -n vault wait --for=condition=Available deployment --all --timeout=5m
-
-VAULT_NOT_RUNNING=true
-while [[ "$VAULT_NOT_RUNNING" == "true" ]]; do
-    echo_step "Waiting for vault-0 pod to run"
-    sleep 5
-    VAULT_STATUS=$(${KUBECTL} get pod -n vault vault-0 -o jsonpath='{.status}'|jq|grep phase|awk '{print $2}'|tr -d '"'|tr -d ',')
-    echo_info "---$VAULT_STATUS---"
-    if [[ "$VAULT_STATUS" == "Running" ]]; then
-	VAULT_NOT_RUNNING=false
-    fi
-done
-
-echo "Initializing vault and obtaining unseal keys"
-${KUBECTL} exec -n vault --stdin vault-0 -- vault operator init -format=yaml > vault-auto-unseal-keys.yaml
-
-echo_info "vault-auto-unseal-keys.yaml"
-cat vault-auto-unseal-keys.yaml
-VAULT_ROOT_TOKEN=$(grep root_token vault-auto-unseal-keys.yaml |awk -F: '{print $2}'|sed 's/ //g')
-
-echo_info "Unsealing vault - part 1/3"
-${KUBECTL} exec -n vault --stdin vault-0 -- vault operator unseal -tls-skip-verify $(grep -A 5 unseal_keys_b64 vault-auto-unseal-keys.yaml |head -2|tail -1|sed 's/- //g')
-
-echo_info "Unsealing vault - part 2/3"
-${KUBECTL} exec -n vault --stdin vault-0 -- vault operator unseal -tls-skip-verify $(grep -A 5 unseal_keys_b64 vault-auto-unseal-keys.yaml |head -3|tail -1|sed 's/- //g')
-
-echo_info "Unsealing vault - part 3/3"
-${KUBECTL} exec -n vault --stdin vault-0 -- vault operator unseal -tls-skip-verify $(grep -A 5 unseal_keys_b64 vault-auto-unseal-keys.yaml |head -4|tail -1|sed 's/- //g')
-
-echo_info "Writing provider-vault secret"
-cat <<EOF | ${KUBECTL} apply -f -
-apiVersion: v1
-kind: Secret
+cat <<EOF|${KUBECTL} apply -f -
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
 metadata:
-  name: vault-creds
-  namespace: vault
-type: Opaque
-stringData:
-  credentials: |
-    {
-      "token_name": "vault-creds-test-token",
-      "token": "$VAULT_ROOT_TOKEN"
-    }
+  name: provider-helm
+spec:
+  package: xpkg.upbound.io/crossplane-contrib/provider-helm:v0.16.0
 EOF
 
-echo_info "Applying providerconfig"
-VAULT_0_POD_IP=$(${KUBECTL} get pod vault-0 -n vault -o yaml|grep podIP:|awk '{print $2}')
-cat <<EOF | ${KUBECTL} apply -f -
-apiVersion: vault.upbound.io/v1beta1
+${KUBECTL} wait provider.pkg --all \
+    --for condition=Healthy \
+    --timeout 5m
+
+cat <<EOF|${KUBECTL} apply -f -
+apiVersion: kubernetes.crossplane.io/v1alpha1
 kind: ProviderConfig
 metadata:
-  name: vault-provider-config
+  name: kubernetes-provider-config
 spec:
-  address: http://$VAULT_0_POD_IP:8200
-  add_address_to_env: false
-  headers: {name: test, value: "e2e"}
-  max_lease_ttl_seconds: 300
-  max_retries: 10
-  max_retries_ccc: 10
-  namespace: vault
-  skip_child_token: true
-  skip_get_vault_version: true
-  skip_tls_verify: true
-  tls_server_name: ""
-  vault_version_override: "1.12.0"
   credentials:
-    source: Secret
-    secretRef:
-      name: vault-creds
-      namespace: vault
-      key: credentials
+    source: InjectedIdentity
 EOF
 
-echo_info "Enabling GitHub Auth"
-${KUBECTL} exec -n vault --stdin vault-0 -- vault login -tls-skip-verify $VAULT_ROOT_TOKEN
-${KUBECTL} exec -n vault --stdin vault-0 -- vault auth enable github
+SA=$(${KUBECTL} -n ${UPBOUND_SYSTEM_NAMESPACE} get sa -o name|grep provider-kubernetes | sed -e "s|serviceaccount\/|${UPBOUND_SYSTEM_NAMESPACE}:|g")
+${KUBECTL} create clusterrolebinding provider-kubernetes-admin-binding --clusterrole cluster-admin --serviceaccount="${SA}"
+SA=$(${KUBECTL} -n ${UPBOUND_SYSTEM_NAMESPACE} get sa -o name|grep provider-helm | sed -e "s|serviceaccount\/|${UPBOUND_SYSTEM_NAMESPACE}:|g")
+${KUBECTL} create clusterrolebinding provider-helm-admin-binding --clusterrole cluster-admin --serviceaccount="${SA}"
 
-echo_info "Enabled Auth Methods"
-${KUBECTL} exec -n vault --stdin vault-0 -- vault auth list
+find ${SCRIPT_DIR}/../apis -name "definition.yaml"|\
+    while read y; do ${KUBECTL} apply -f $y; done
+find ${SCRIPT_DIR}/../apis -name "composition.yaml"|\
+    while read y; do ${KUBECTL} apply -f $y; done
+${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/vault.yaml
 
-echo_step_completed "Vault setup complete"
+${KUBECTL} wait vault.sec.upbound.io configuration-vault \
+    --for condition="Ready" \
+    --timeout 5m
+${KUBECTL} -n vault wait \
+   --for=condition=Available deployment --all \
+   --timeout=5m
+
+crossplane beta trace vault.sec.upbound.io configuration-vault
+
+${KUBECTL} -n vault port-forward vault-0 8200 2>&1 >/dev/null &
+sleep 10
+${SCRIPT_DIR}/../test/verify.sh 2>/dev/null
+
+echo "export VAULT_ADDR=http://127.0.0.1:8200"
+echo "so that the vault client will be able to connect to the server"
+export VAULT_ADDR=http://127.0.0.1:8200
