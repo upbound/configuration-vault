@@ -8,6 +8,19 @@ spec:
     apiVersion: sec.upbound.io/v1alpha1
     kind: XVault
   resources:
+    - name: xVaultInstall
+      base:
+        apiVersion: sec.upbound.io/v1alpha1
+        kind: XVaultInstall
+        spec:
+          parameters:
+            id: configuration-vault-install
+      patches:
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.xVaultInstall
+          toFieldPath: status.vaultXVaultInstall
+          policy:
+            fromFieldPath: Required
     - name: xVaultAuth
       base:
         apiVersion: sec.upbound.io/v1alpha1
@@ -23,6 +36,10 @@ spec:
           toFieldPath: spec.parameters.dataJsonSecretRef
         - fromFieldPath: spec.parameters.user
           toFieldPath: spec.parameters.user
+        - fromFieldPath: status.vaultXVaultInstall.state
+          toFieldPath: spec.parameters.vaultDeployedState
+          policy:
+            fromFieldPath: Required
     - name: xVaultSecrets
       base:
         apiVersion: sec.upbound.io/v1alpha1
@@ -39,6 +56,10 @@ spec:
                 fmt: "%s-secrets"
         - fromFieldPath: spec.parameters.transitKeyName
           toFieldPath: spec.parameters.transitKeyName
+        - fromFieldPath: status.vaultXVaultInstall.state
+          toFieldPath: spec.parameters.vaultDeployedState
+          policy:
+            fromFieldPath: Required
     - name: xVaultPolicies
       base:
         apiVersion: sec.upbound.io/v1alpha1
@@ -53,3 +74,14 @@ spec:
             - type: string
               string:
                 fmt: "%s-policy"
+        - fromFieldPath: status.vaultXVaultInstall.state
+          toFieldPath: spec.parameters.vaultDeployedState
+          policy:
+            fromFieldPath: Required
+    - name: xVaultUser
+      base:
+        apiVersion: sec.upbound.io/v1alpha1
+        kind: XVaultUser
+        spec:
+          parameters:
+            id: configuration-vault-user

@@ -1,0 +1,35 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xvaultusers.sec.upbound.io
+spec:
+  writeConnectionSecretsToNamespace: upbound-system
+  compositeTypeRef:
+    apiVersion: sec.upbound.io/v1alpha1
+    kind: XVaultUser
+  resources:
+    - name: vault-creds
+      base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        metadata:
+          name: kubernetes-vault-creds-secret
+        spec:
+          deletionPolicy: Orphan
+          forProvider:
+            manifest:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: student-creds
+                namespace: vault
+              stringData:
+                credentials: |
+                  {
+                    "policies": ["admins", "eaas-client"],
+                    "password": "changeme"
+                  }
+            type: Opaque
+          providerConfigRef:
+            name: kubernetes-provider-config

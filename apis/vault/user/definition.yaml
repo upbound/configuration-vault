@@ -1,0 +1,55 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xvaultusers.sec.upbound.io
+spec:
+  group: sec.upbound.io
+  names:
+    kind: XVaultUser
+    plural: xvaultusers
+  claimNames:
+    kind: VaultUser
+    plural: vaultusers
+  connectionSecretKeys:
+    - kubeconfig
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                parameters:
+                  type: object
+                  description: >-
+                    Vault User configuration parameters.
+                  properties:
+                    id:
+                      type: string
+                      description: >-
+                        ID of this Vault User that other objects will
+                        use to refer to it.
+                    deletionPolicy:
+                      description: >-
+                        When the Composition is deleted,
+                        delete the AWS resources. Defaults to Delete.
+                      enum:
+                        - Delete
+                        - Orphan
+                      type: string
+                      default: Delete
+                  required:
+                    - id
+              required:
+                - parameters
+            status:
+              type: object
+              properties:
+                vaultInstall:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true

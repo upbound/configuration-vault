@@ -33,6 +33,11 @@ spec:
                       description: ->
                         ID of this Vault policy that other
                         objects will use to refer to it.
+                    vaultDeployedState:
+                      type: string
+                      description: >-
+                        Vault deployed state that the
+                        policy configuration depends on.
                     deletionPolicy:
                       type: string
                       description: >-

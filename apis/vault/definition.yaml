@@ -88,9 +88,15 @@ spec:
                 vaultXAuth:
                   type: object
                   x-kubernetes-preserve-unknown-fields: true
+                vaultXVaultInstall:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
                 vaultXPolicy:
                   type: object
                   x-kubernetes-preserve-unknown-fields: true
                 vaultXSecret:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                vaultXVaultUser:
                   type: object
                   x-kubernetes-preserve-unknown-fields: true

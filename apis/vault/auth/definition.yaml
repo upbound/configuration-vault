@@ -59,6 +59,11 @@ spec:
                         e.g. student. The path where the
                         where the data is written will be
                         auth/userpass/users/<user>.
+                    vaultDeployedState:
+                      type: string
+                      description: >-
+                        State of the vault deployment State
+                        that this XAuth depends on.
                     deletionPolicy:
                       type: string
                       description: >-

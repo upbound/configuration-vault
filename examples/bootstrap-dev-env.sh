@@ -10,10 +10,15 @@ kubectl -n upbound-system wait \
     --timeout=5m
 
 kubectl create namespace vault
-helm install vault hashicorp/vault -n vault --set "server.dev.enabled=true" --set "server.dev.devRootToken=root"
-kubectl -n vault wait \
-    --for=condition=Available deployment --all \
-    --timeout=5m
+
+cat <<EOF|kubectl apply -f -
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-kubernetes
+spec:
+  package: xpkg.upbound.io/crossplane-contrib/provider-kubernetes:v0.11.1
+EOF
 
 cat <<EOF|kubectl apply -f -
 apiVersion: pkg.crossplane.io/v1
@@ -24,75 +29,49 @@ spec:
   package: xpkg.upbound.io/upbound/provider-vault:v0.3.0
 EOF
 
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: Secret
+cat <<EOF|kubectl apply -f -
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
 metadata:
-  name: vault-creds
-  namespace: vault
-type: Opaque
-stringData:
-  credentials: |
-    {
-      "token_name": "vault-creds-test-token",
-      "token": "$VAULT_TOKEN"
-    }
-EOF
-
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: Secret
-metadata:
-  name: student-creds
-  namespace: vault
-type: Opaque
-stringData:
-  credentials: |
-    {
-      "policies": ["admins", "eaas-client"],
-      "password": "changeme"
-    }
+  name: provider-helm
+spec:
+  package: xpkg.upbound.io/crossplane-contrib/provider-helm:v0.16.0
 EOF
 
 kubectl wait provider.pkg --all \
     --for condition=Healthy \
     --timeout 5m
-cat <<EOF | kubectl apply -f -
-apiVersion: vault.upbound.io/v1beta1
+
+cat <<EOF|kubectl apply -f -
+apiVersion: kubernetes.crossplane.io/v1alpha1
 kind: ProviderConfig
 metadata:
-  name: vault-provider-config
+  name: kubernetes-provider-config
 spec:
-  address: http://vault.vault:8200
-  add_address_to_env: false
-  headers: {name: test, value: "e2e"}
-  max_lease_ttl_seconds: 300
-  max_retries: 10
-  max_retries_ccc: 10
-  namespace: vault
-  skip_child_token: true
-  skip_get_vault_version: true
-  skip_tls_verify: true
-  tls_server_name: ""
-  vault_version_override: "1.15.2"
   credentials:
-    source: Secret
-    secretRef:
-      name: vault-creds
-      namespace: vault
-      key: credentials
+    source: InjectedIdentity
 EOF
 
-find ${SCRIPT_DIR}/../apis/vault -name "definition.yaml"|\
+SA=$(kubectl -n upbound-system get sa -o name|grep provider-kubernetes | sed -e "s|serviceaccount\/|upbound-system:|g")
+kubectl create clusterrolebinding provider-kubernetes-admin-binding --clusterrole cluster-admin --serviceaccount="${SA}"
+SA=$(kubectl -n upbound-system get sa -o name|grep provider-helm | sed -e "s|serviceaccount\/|upbound-system:|g")
+kubectl create clusterrolebinding provider-helm-admin-binding --clusterrole cluster-admin --serviceaccount="${SA}"
+
+find ${SCRIPT_DIR}/../apis -name "definition.yaml"|\
     while read y; do kubectl apply -f $y; done
 
-find ${SCRIPT_DIR}/../apis/vault -name "composition.yaml"|\
+find ${SCRIPT_DIR}/../apis -name "composition.yaml"|\
     while read y; do kubectl apply -f $y; done
 
 kubectl apply -f ${SCRIPT_DIR}/../examples/vault.yaml
+
 kubectl wait vault.sec.upbound.io configuration-vault \
     --for condition="Ready" \
     --timeout 5m
+kubectl -n vault wait \
+   --for=condition=Available deployment --all \
+   --timeout=5m
+
 crossplane beta trace vault.sec.upbound.io configuration-vault
 
 kubectl -n vault port-forward vault-0 8200 2>&1 >/dev/null & 

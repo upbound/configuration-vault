@@ -1,0 +1,7 @@
+apiVersion: sec.upbound.io/v1alpha1
+kind: VaultInstall
+metadata:
+  name: configuration-vault-install
+spec:
+  parameters:
+    id: configuration-vault-install
