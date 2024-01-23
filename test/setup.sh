@@ -22,7 +22,7 @@ echo_info "Running setup.sh"
 
 SCRIPT_DIR=$( cd -- $( dirname -- "${BASH_SOURCE[0]}" ) &> /dev/null && pwd )
 
-kind create cluster --name uxp
+#kind create cluster --name uxp
 
 echo_info "Checking for kubeconfig"
 KUBECONFIG_PATH="${SCRIPT_DIR}/../kubeconfig"
@@ -32,10 +32,10 @@ fi
 
 echo_info "Checking for upbound-system namespace match"
 UPBOUND_SYSTEM_NAMESPACE=$(${KUBECTL} get ns|grep upbound-system|awk '{print $1}') ||true
-if [[ "${UPBOUND_SYSTEM_NAMESPACE}" != "upbound-system" ]]; then
-    echo "${UPBOUND_SYSTEM_NAMESPACE}"
-    up uxp install
-fi
+#if [[ "${UPBOUND_SYSTEM_NAMESPACE}" != "upbound-system" ]]; then
+#    echo "${UPBOUND_SYSTEM_NAMESPACE}"
+#    up uxp install
+#fi
 
 ${KUBECTL} -n ${UPBOUND_SYSTEM_NAMESPACE} wait \
     --for=condition=Available deployment --all \
