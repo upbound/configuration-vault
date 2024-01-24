@@ -17,7 +17,6 @@ UXP_VERSION = "1.14.5-up.1"
 UP_VERSION = v0.21.0
 UP_CHANNEL = stable
 UPTEST_VERSION = v0.10.0
-#UXP_INSTALL_OPTS = ""
 -include build/makelib/k8s_tools.mk
 # ====================================================================================
 # Setup XPKG
@@ -36,8 +35,8 @@ XPKGS = $(PROJECT_NAME)
 -include build/makelib/xpkg.mk
 
 CROSSPLANE_NAMESPACE = upbound-system
-# Crossplane needs additional resources to benefit from realtime compositions
-#CROSSPLANE_ARGS = "--enable-usages,--enable-realtime-compositions,--debug"
+CROSSPLANE_ARGS = "--enable-usages"
+# CROSSPLANE_ARGS = "--enable-usages,--enable-realtime-compositions,--debug"
 KIND_CLUSTER_NAME = "uxp"
 KIND_VERSION = "v1.27.3"
 -include build/makelib/local.xpkg.mk
@@ -75,7 +74,7 @@ build.init: $(UP)
 #   You can check the basic implementation here: https://github.com/upbound/uptest/blob/main/internal/templates/01-delete.yaml.tmpl.
 uptest: $(UPTEST) $(KUBECTL) $(KUTTL)
 	@$(INFO) running automated tests
-	@KUBECTL=$(KUBECTL) CROSSPLANE_NAMESPACE=$(CROSSPLANE_NAMESPACE) KUTTL=$(KUTTL) $(UPTEST) e2e examples/vault.yaml --setup-script=test/setup.sh --default-timeout=3600 || $(FAIL)
+	@KUBECTL=$(KUBECTL) CROSSPLANE_NAMESPACE=$(CROSSPLANE_NAMESPACE) KUTTL=$(KUTTL) $(UPTEST) e2e examples/vault.yaml --setup-script=test/setup.sh --skip-delete --default-timeout=3600 || $(FAIL)
 	@$(OK) running automated tests
 
 # This target requires the following environment variables to be set:
