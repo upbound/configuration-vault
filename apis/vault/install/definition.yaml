@@ -34,6 +34,13 @@ spec:
                       description: >-
                         ID of this Vault that other objects will
                         use to refer to it.
+                    vaultAddress:
+                      type: string
+                      description: >-
+                        Optional VAULT_ADDR if you bring your own.
+                        Format is http(s)://<NAME>:<PORT>.
+                        Example is http(s)://vault-addr.domain.net:8200.
+                      default: http://vault.vault:8200
                     deletionPolicy:
                       description: >-
                         When the Composition is deleted,

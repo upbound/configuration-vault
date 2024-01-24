@@ -14,6 +14,7 @@ spec:
         apiVersion: auth.vault.upbound.io/v1alpha1
         kind: Backend
         spec:
+          deletionPolicy: Delete
           forProvider:
             description: Userpass auth backend for UXP managed Vault.
             disableRemount: false
@@ -35,6 +36,7 @@ spec:
         apiVersion: generic.vault.upbound.io/v1alpha1
         kind: Endpoint
         spec:
+          deletionPolicy: Delete
           forProvider:
             disableDelete: false
             disableRead: false

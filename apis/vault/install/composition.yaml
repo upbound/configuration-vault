@@ -9,69 +9,12 @@ spec:
     apiVersion: sec.upbound.io/v1alpha1
     kind: XVaultInstall
   resources:
-#   - name: service-account
-#     base:
-#       apiVersion: kubernetes.crossplane.io/v1alpha1
-#       kind: Object
-#       metadata:
-#         name: vault-upbound
-#         namespace: upbound-system
-#       spec:
-#         forProvider:
-#           manifest:
-#             apiVersion: v1
-#             kind: ServiceAccount
-#             matadata:
-#               name: vault-upbound
-#               namespace: upbound-system
-#         providerConfigRef:
-#           name: kubernetes-provider-config
-#   - name: cluster-role
-#     base:
-#       apiVersion: kubernetes.crossplane.io/v1alpha1
-#       kind: Object
-#       spec:
-#         forProvider:
-#           manifest:
-#             apiVersion: rbac.authorization.k8s.io/v1
-#             kind: ClusterRole
-#             metadata:
-#               name: apiserver-cluster-role
-#             rules:
-#               - apiGroups:
-#                   - ""
-#                 resources:
-#                   - pods
-#                   - providerconfigs
-#                 verbs: ["get", "list"]
-#         providerConfigRef:
-#           name: kubernetes-provider-config
-#   - name: cluster-role-binding
-#     base:
-#       apiVersion: kubernetes.crossplane.io/v1alpha1
-#       kind: Object
-#       spec:
-#         forProvider:
-#           manifest:
-#             apiVersion: rbac.authorization.k8s.io/v1
-#             kind: ClusterRoleBinding
-#             metadata:
-#               name: apiserver-cluster-role-binding
-#             subjects:
-#             - namespace: monitoring
-#               kind: ServiceAccount
-#               name: vault-upbound
-#             roleRef:
-#               apiGroup: rbac.authorization.k8s.io
-#               kind: ClusterRole
-#               name: apiserver-cluster-role
-#         providerConfigRef:
-#           name: kubernetes-provider-config
     - name: vault-namespace
       base:
         apiVersion: kubernetes.crossplane.io/v1alpha1
         kind: Object
         spec:
+          deletionPolicy: Delete
           forProvider:
             manifest:
               apiVersion: v1
@@ -87,7 +30,7 @@ spec:
         metadata:
           name: kubernetes-vault-creds-secret
         spec:
-          deletionPolicy: Orphan
+          deletionPolicy: Delete
           forProvider:
             manifest:
               apiVersion: v1
@@ -112,6 +55,7 @@ spec:
           annotations:
             crossplane.io/external-name: vault
         spec:
+          deletionPolicy: Delete
           rollbackLimit: 3
           forProvider:
             namespace: vault
@@ -139,6 +83,7 @@ spec:
         apiVersion: kubernetes.crossplane.io/v1alpha1
         kind: Object
         spec:
+          deletionPolicy: Delete
           forProvider:
             manifest:
               apiVersion: helm.crossplane.io/v1beta1
@@ -155,6 +100,7 @@ spec:
         apiVersion: kubernetes.crossplane.io/v1alpha1
         kind: Object
         spec:
+          deletionPolicy: Delete
           forProvider:
             manifest:
               apiVersion: vault.upbound.io/v1beta1
@@ -162,7 +108,6 @@ spec:
               metadata:
                 name: vault-provider-config
               spec:
-                address: http://vault.vault:8200
                 add_address_to_env: false
                 headers: {name: test, value: "e2e"}
                 max_lease_ttl_seconds: 300
@@ -182,3 +127,6 @@ spec:
                     key: credentials
           providerConfigRef:
             name: kubernetes-provider-config
+      patches:
+        - fromFieldPath: spec.parameters.vaultAddress
+          toFieldPath: spec.forProvider.manifest.spec.address

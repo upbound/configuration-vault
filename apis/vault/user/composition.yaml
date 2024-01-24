@@ -16,7 +16,7 @@ spec:
         metadata:
           name: kubernetes-vault-creds-secret
         spec:
-          deletionPolicy: Orphan
+          deletionPolicy: Delete
           forProvider:
             manifest:
               apiVersion: v1

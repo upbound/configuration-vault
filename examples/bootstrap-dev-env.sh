@@ -1,78 +1,42 @@
 #!/bin/bash
-
+# Bootstrap configuration-vault
 SCRIPT_DIR=$( cd -- $( dirname -- "${BASH_SOURCE[0]}" ) &> /dev/null && pwd )
-
+K=${KUBECTL}
 kind create cluster --name uxp
-up uxp install
-kubectl -n upbound-system wait \
-    --for=condition=Available deployment --all \
-    --timeout=5m
+up uxp install --set "args={--debug, --enable-realtime-compositions}" \
+ 	--set "resourcesCrossplane.limits.cpu=3000m" \
+	--set "resourcesCrossplane.limits.memory=3Gi" \
+	--set "resourcesCrossplane.requests.cpu=3000m" \
+	--set "resourcesCrossplane.requests.memory=3Gi"
+${KUBECTL} -n upbound-system wait --timeout=5m --for=condition=Available deployment --all
 
-cat <<EOF|kubectl apply -f -
-apiVersion: pkg.crossplane.io/v1
-kind: Provider
-metadata:
-  name: provider-kubernetes
-spec:
-  package: xpkg.upbound.io/crossplane-contrib/provider-kubernetes:v0.11.1
-EOF
+${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/provider-manifests
+${KUBECTL} wait provider.pkg --all --timeout 5m --for condition=Healthy
+${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/provider-kubernetes-config.yaml
 
-cat <<EOF|kubectl apply -f -
-apiVersion: pkg.crossplane.io/v1
-kind: Provider
-metadata:
-  name: provider-vault
-spec:
-  package: xpkg.upbound.io/upbound/provider-vault:v0.3.0
-EOF
-
-cat <<EOF|kubectl apply -f -
-apiVersion: pkg.crossplane.io/v1
-kind: Provider
-metadata:
-  name: provider-helm
-spec:
-  package: xpkg.upbound.io/crossplane-contrib/provider-helm:v0.16.0
-EOF
-
-kubectl wait provider.pkg --all \
-    --for condition=Healthy \
-    --timeout 5m
-
-cat <<EOF|kubectl apply -f -
-apiVersion: kubernetes.crossplane.io/v1alpha1
-kind: ProviderConfig
-metadata:
-  name: kubernetes-provider-config
-spec:
-  credentials:
-    source: InjectedIdentity
-EOF
-
-SA=$(kubectl -n upbound-system get sa -o name|grep provider-kubernetes | sed -e "s|serviceaccount\/|upbound-system:|g")
-kubectl create clusterrolebinding provider-kubernetes-admin-binding --clusterrole cluster-admin --serviceaccount="${SA}"
-SA=$(kubectl -n upbound-system get sa -o name|grep provider-helm | sed -e "s|serviceaccount\/|upbound-system:|g")
-kubectl create clusterrolebinding provider-helm-admin-binding --clusterrole cluster-admin --serviceaccount="${SA}"
+SA=$(${KUBECTL} -n upbound-system get sa -o name|grep provider-kubernetes|\
+   sed -e "s|serviceaccount\/|upbound-system:|g")
+${KUBECTL} create clusterrolebinding provider-kubernetes-admin-binding \
+    --clusterrole cluster-admin --serviceaccount="${SA}"
+SA=$(${KUBECTL} -n upbound-system get sa -o name|grep provider-helm|\
+   sed -e "s|serviceaccount\/|upbound-system:|g")
+${KUBECTL} create clusterrolebinding provider-helm-admin-binding \
+    --clusterrole cluster-admin --serviceaccount="${SA}"
 
 find ${SCRIPT_DIR}/../apis -name "definition.yaml"|\
-    while read y; do kubectl apply -f $y; done
+    while read y; do ${KUBECTL} apply -f $y; done
 find ${SCRIPT_DIR}/../apis -name "composition.yaml"|\
-    while read y; do kubectl apply -f $y; done
-kubectl apply -f ${SCRIPT_DIR}/../examples/vault.yaml
+    while read y; do ${KUBECTL} apply -f $y; done
+${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/vault.yaml
 
-kubectl wait vault.sec.upbound.io configuration-vault \
-    --for condition="Ready" \
-    --timeout 5m
-kubectl -n vault wait \
-   --for=condition=Available deployment --all \
-   --timeout=5m
+echo "waiting for managed resource readiness. This takes several minutes"
+${KUBECTL} wait vault.sec.upbound.io configuration-vault --timeout 5m \
+    --for condition="Ready"
+${KUBECTL} -n vault wait --timeout=5m --for=condition=Available deployment --all
 
 crossplane beta trace vault.sec.upbound.io configuration-vault
-
-kubectl -n vault port-forward vault-0 8200 2>&1 >/dev/null & 
+${KUBECTL} -n vault port-forward vault-0 8200 2>&1 >/dev/null &
 sleep 10
 ${SCRIPT_DIR}/../test/verify.sh 2>/dev/null
 
-echo "export VAULT_ADDR=http://127.0.0.1:8200"
-echo "so that the vault client will be able to connect to the server"
-export VAULT_ADDR=http://127.0.0.1:8200
+echo "export VAULT_ADDR=http://127.0.0.1:8200 to be able to use the vault cli"

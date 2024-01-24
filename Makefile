@@ -11,12 +11,13 @@ PLATFORMS ?= linux_amd64
 # ====================================================================================
 # Setup Kubernetes tools
 
+CROSSPLANE_NAMESPACE = upbound-system
+KUBECTL_VERSION = v1.27.3
+UXP_VERSION = "1.14.5-up.1"
 UP_VERSION = v0.21.0
 UP_CHANNEL = stable
 UPTEST_VERSION = v0.10.0
-UXP_INSTALL_OPTS = "--unstable"
-#UXP_VERSION = 1.14.0-up.1.rc.2"
-
+#UXP_INSTALL_OPTS = ""
 -include build/makelib/k8s_tools.mk
 # ====================================================================================
 # Setup XPKG
@@ -25,7 +26,7 @@ UXP_INSTALL_OPTS = "--unstable"
 # certain conventions such as the default examples root or package directory.
 XPKG_DIR = $(shell pwd)
 XPKG_EXAMPLES_DIR = examples
-XPKG_IGNORE = .github/workflows/ci.yaml,.github/workflows/tag.yml,.github/workflows/e2e.yaml,init/*.yaml,.work/uptest-datasource.yaml,test/provider/*.yaml,examples/*.yaml
+XPKG_IGNORE = .github/workflows/ci.yaml,.github/workflows/tag.yml,.github/workflows/e2e.yaml,init/*.yaml,.work/uptest-datasource.yaml
 
 XPKG_REG_ORGS ?= xpkg.upbound.io/upbound
 # NOTE(hasheddan): skip promoting on xpkg.upbound.io as channel tags are
@@ -35,8 +36,10 @@ XPKGS = $(PROJECT_NAME)
 -include build/makelib/xpkg.mk
 
 CROSSPLANE_NAMESPACE = upbound-system
-CROSSPLANE_ARGS = "--enable-usages"
-KIND_CLUSTER_NAME = "crossplane-local-dev"
+# Crossplane needs additional resources to benefit from realtime compositions
+#CROSSPLANE_ARGS = "--enable-usages,--enable-realtime-compositions,--debug"
+KIND_CLUSTER_NAME = "uxp"
+KIND_VERSION = "v1.27.3"
 -include build/makelib/local.xpkg.mk
 -include build/makelib/controlplane.mk
 
@@ -72,13 +75,11 @@ build.init: $(UP)
 #   You can check the basic implementation here: https://github.com/upbound/uptest/blob/main/internal/templates/01-delete.yaml.tmpl.
 uptest: $(UPTEST) $(KUBECTL) $(KUTTL)
 	@$(INFO) running automated tests
-	@KUBECTL=$(KUBECTL) KUTTL=$(KUTTL) $(UPTEST) e2e examples/vault.yaml --setup-script=test/setup.sh --default-timeout=2400 || $(FAIL)
+	@KUBECTL=$(KUBECTL) CROSSPLANE_NAMESPACE=$(CROSSPLANE_NAMESPACE) KUTTL=$(KUTTL) $(UPTEST) e2e examples/vault.yaml --setup-script=test/setup.sh --default-timeout=3600 || $(FAIL)
 	@$(OK) running automated tests
 
 # This target requires the following environment variables to be set:
 # - UPTEST_CLOUD_CREDENTIALS, cloud credentials for the provider being tested, e.g. export UPTEST_CLOUD_CREDENTIALS=$(cat ~/.aws/credentials)
 e2e: build controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME) uptest
-
-cluster: build controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME)
 
 .PHONY: uptest e2e
