@@ -78,14 +78,8 @@ tree
 ├── Makefile
 ├── README.md
 ├── _output
-│   └── xpkg
-│       ├── cache
-│       │   ├── configuration-vault-v0.0.0-11.g55cf092.gz
-│       └── linux_arm64
-│           ├── configuration-vault-v0.0.0-11.g55cf092.xpkg
 ├── apis
 │   └── vault
-│       ├── README.md
 │       ├── auth
 │       │   ├── composition.yaml
 │       │   └── definition.yaml
@@ -106,7 +100,6 @@ tree
 ├── build
 ├── crossplane.yaml
 ├── examples
-│   ├── README.md
 │   ├── auth.yaml
 │   ├── bootstrap-dev-env.sh
 │   ├── function-manifests
