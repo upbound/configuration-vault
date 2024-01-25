@@ -83,4 +83,12 @@ e2e: build controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME) uptes
 bootstrap:
 	examples/bootstrap-dev-env.sh
 
+render:
+	crossplane beta render examples/vault.yaml apis/vault/composition.yaml examples/function-manifests/functions.yaml -r
+
+yamllint:
+	@$(INFO) running yamllint
+	@yamllint ./apis || $(FAIL)
+	@$(OK) running yamllint
+
 .PHONY: uptest e2e bootstrap
