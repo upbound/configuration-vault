@@ -26,8 +26,10 @@ spec:
                     kind: Namespace
                     metadata:
                       name: vault
-                providerConfigRef:
-                  name: kubernetes-provider-config
+            patches:
+              - fromFieldPath: spec.parameters.providerConfigName
+                toFieldPath: spec.providerConfigRef.name
+                type: FromCompositeFieldPath
             name: vault-namespace
           - base:
               apiVersion: kubernetes.crossplane.io/v1alpha1
@@ -50,8 +52,10 @@ spec:
                           "token": "root"
                         }
                     type: Opaque
-                providerConfigRef:
-                  name: kubernetes-provider-config
+            patches:
+              - fromFieldPath: spec.parameters.providerConfigName
+                toFieldPath: spec.providerConfigRef.name
+                type: FromCompositeFieldPath
             name: vault-creds
           - base:
               apiVersion: helm.crossplane.io/v1beta1
@@ -74,8 +78,6 @@ spec:
                         devRootToken: root
                         enabled: true
                   wait: true
-                providerConfigRef:
-                  name: helm-provider-config
                 rollbackLimit: 3
             name: vault-helm-release
             patches:
@@ -84,23 +86,28 @@ spec:
                   fromFieldPath: Required
                 toFieldPath: status.xVaultInstall
                 type: ToCompositeFieldPath
-          - base:
-              apiVersion: kubernetes.crossplane.io/v1alpha1
-              kind: Object
-              spec:
-                deletionPolicy: Delete
-                forProvider:
-                  manifest:
-                    apiVersion: helm.crossplane.io/v1beta1
-                    kind: ProviderConfig
-                    metadata:
-                      name: helm-provider-config
-                    spec:
-                      credentials:
-                        source: InjectedIdentity
-                providerConfigRef:
-                  name: kubernetes-provider-config
-            name: helm-provider-config
+              - fromFieldPath: spec.parameters.providerConfigName
+                toFieldPath: spec.providerConfigRef.name
+                type: FromCompositeFieldPath
+#         - base:
+#             apiVersion: kubernetes.crossplane.io/v1alpha1
+#             kind: Object
+#             spec:
+#               deletionPolicy: Delete
+#               forProvider:
+#                 manifest:
+#                   apiVersion: helm.crossplane.io/v1beta1
+#                   kind: ProviderConfig
+#                   metadata:
+#                     name: helm-provider-config
+#                   spec:
+#                     credentials:
+#                       source: InjectedIdentity
+#           patches:
+#             - fromFieldPath: spec.parameters.providerConfigName
+#               toFieldPath: spec.providerConfigRef.name
+#               type: FromCompositeFieldPath
+#           name: helm-provider-config
           - base:
               apiVersion: kubernetes.crossplane.io/v1alpha1
               kind: Object
@@ -132,11 +139,12 @@ spec:
                       skip_tls_verify: true
                       tls_server_name: ""
                       vault_version_override: 1.15.2
-                providerConfigRef:
-                  name: kubernetes-provider-config
             name: vault-provider-config
             patches:
               - fromFieldPath: spec.parameters.vaultAddress
                 toFieldPath: spec.forProvider.manifest.spec.address
+                type: FromCompositeFieldPath
+              - fromFieldPath: spec.parameters.providerConfigName
+                toFieldPath: spec.providerConfigRef.name
                 type: FromCompositeFieldPath
       step: patch-and-transform

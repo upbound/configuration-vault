@@ -11,8 +11,6 @@ spec:
   claimNames:
     kind: VaultUser
     plural: vaultusers
-  connectionSecretKeys:
-    - kubeconfig
   versions:
     - name: v1alpha1
       served: true
@@ -24,10 +22,6 @@ spec:
             spec:
               type: object
               properties:
-                forProvider:
-                  type: object
-                  description: >-
-                    Empty forProvider.
                 parameters:
                   type: object
                   description: >-
@@ -47,6 +41,12 @@ spec:
                         - Orphan
                       type: string
                       default: Delete
+                    providerConfigName:
+                      description: ->
+                        Crossplane ProviderConfig to
+                        use for provisioning these resources.
+                      type: string
+                      default: default
                   required:
                     - id
               required:

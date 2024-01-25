@@ -11,11 +11,11 @@ up uxp install \
   --set "resourcesCrossplane.requests.memory=3Gi"
 ${KUBECTL} -n upbound-system wait --timeout=5m --for=condition=Available deployment --all
 
-${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/function-manifests
+${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/functions.yaml
 ${KUBECTL} wait function.pkg --all --timeout 5m --for condition=Healthy
 ${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/provider-manifests
 ${KUBECTL} wait provider.pkg --all --timeout 5m --for condition=Healthy
-${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/provider-kubernetes-config.yaml
+${KUBECTL} apply -f ${SCRIPT_DIR}/../test/provider/provider-configs.yaml
 
 # Setup per https://github.com/crossplane-contrib/provider-kubernetes
 SA=$(${KUBECTL} -n upbound-system get sa -o name|grep provider-kubernetes|\

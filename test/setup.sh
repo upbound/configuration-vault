@@ -5,7 +5,7 @@ ${KUBECTL} -n upbound-system wait --timeout=5m --for=condition=Available deploym
 
 ${KUBECTL} wait function.pkg --all --timeout 5m --for condition=Healthy
 ${KUBECTL} wait provider.pkg --all --timeout 5m --for condition=Healthy
-${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/provider-kubernetes-config.yaml
+${KUBECTL} apply -f ${SCRIPT_DIR}/provider/provider-configs.yaml
 
 SA=$(${KUBECTL} -n upbound-system get sa -o name|grep provider-kubernetes|\
    sed -e "s|serviceaccount\/|upbound-system:|g")
@@ -20,4 +20,4 @@ find ${SCRIPT_DIR}/../apis -name "definition.yaml"|\
     while read y; do ${KUBECTL} apply -f $y; done
 find ${SCRIPT_DIR}/../apis -name "composition.yaml"|\
     while read y; do ${KUBECTL} apply -f $y; done
-${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/vault.yaml
+#${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/vault.yaml

@@ -12,7 +12,6 @@ PLATFORMS ?= linux_amd64
 # Setup Kubernetes tools
 
 KUBECTL_VERSION = v1.27.3
-UXP_VERSION = "1.14.0-up.1"
 UP_VERSION = v0.21.0
 UP_CHANNEL = stable
 UPTEST_VERSION = v0.10.0
@@ -24,7 +23,7 @@ UPTEST_VERSION = v0.10.0
 # certain conventions such as the default examples root or package directory.
 XPKG_DIR = $(shell pwd)
 XPKG_EXAMPLES_DIR = examples
-XPKG_IGNORE = .github/workflows/ci.yaml,.github/workflows/tag.yml,.github/workflows/e2e.yaml,.github/workflows/yamllint.yaml,init/*.yaml,.work/uptest-datasource.yaml
+XPKG_IGNORE = .github/workflows/ci.yaml,.github/workflows/tag.yml,.github/workflows/e2e.yaml,.github/workflows/yamllint.yaml,init/*.yaml,.work/uptest-datasource.yaml,test/provider/*.yaml
 
 XPKG_REG_ORGS ?= xpkg.upbound.io/upbound
 # NOTE(hasheddan): skip promoting on xpkg.upbound.io as channel tags are
