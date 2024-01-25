@@ -11,7 +11,6 @@ PLATFORMS ?= linux_amd64
 # ====================================================================================
 # Setup Kubernetes tools
 
-CROSSPLANE_NAMESPACE = upbound-system
 KUBECTL_VERSION = v1.27.3
 UXP_VERSION = "1.14.0-up.1"
 UP_VERSION = v0.21.0
@@ -84,7 +83,7 @@ bootstrap:
 	examples/bootstrap-dev-env.sh
 
 render:
-	crossplane beta render examples/vault.yaml apis/vault/composition.yaml examples/function-manifests/functions.yaml -r
+	crossplane beta render examples/vault.yaml apis/vault/composition.yaml examples/functions.yaml -r
 
 yamllint:
 	@$(INFO) running yamllint

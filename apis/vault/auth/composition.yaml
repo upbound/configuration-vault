@@ -2,7 +2,6 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  creationTimestamp: "2024-01-25T00:33:54Z"
   name: xauths.sec.upbound.io
 spec:
   compositeTypeRef:
@@ -11,12 +10,10 @@ spec:
   mode: Pipeline
   pipeline:
     - functionRef:
-        name: function-patch-and-transform
+        name: upbound-function-patch-and-transform
       input:
         apiVersion: pt.fn.crossplane.io/v1beta1
-        environment: null
         kind: Resources
-        patchSets: []
         resources:
           - base:
               apiVersion: auth.vault.upbound.io/v1alpha1
