@@ -33,6 +33,9 @@ spec:
                   fromFieldPath: Required
                 toFieldPath: status.vaultXVaultInstall
                 type: ToCompositeFieldPath
+              - fromFieldPath: spec.parameters.providerConfigName
+                toFieldPath: spec.parameters.providerConfigName
+                type: FromCompositeFieldPath
           - base:
               apiVersion: sec.upbound.io/v1alpha1
               kind: XAuth
@@ -99,4 +102,8 @@ spec:
                 parameters:
                   id: configuration-vault-user
             name: xVaultUser
+            patches:
+              - fromFieldPath: spec.parameters.providerConfigName
+                toFieldPath: spec.parameters.providerConfigName
+                type: FromCompositeFieldPath
       step: patch-and-transform

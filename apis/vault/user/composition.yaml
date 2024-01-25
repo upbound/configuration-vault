@@ -36,7 +36,9 @@ spec:
                           "password": "changeme"
                         }
                     type: Opaque
-                providerConfigRef:
-                  name: kubernetes-provider-config
             name: vault-creds
+            patches:
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.providerConfigName
+                toFieldPath: spec.providerConfigRef.name
       step: patch-and-transform

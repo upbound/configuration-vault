@@ -11,8 +11,6 @@ spec:
   claimNames:
     kind: Auth
     plural: auths
-  connectionSecretKeys:
-    - kubeconfig
   versions:
     - name: v1alpha1
       served: true
@@ -85,7 +83,7 @@ spec:
                     providerConfigName:
                       description: ->
                         Crossplane ProviderConfig to
-                        use for provisioning this resources.
+                        use for provisioning these resources.
                       type: string
                       default: vault-provider-config
                   required:

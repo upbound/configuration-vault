@@ -11,8 +11,6 @@ spec:
   claimNames:
     kind: Policy
     plural: policys
-  connectionSecretKeys:
-    - kubeconfig
   versions:
     - name: v1alpha1
       served: true

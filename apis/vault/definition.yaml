@@ -11,8 +11,6 @@ spec:
   claimNames:
     kind: Vault
     plural: vaults
-  connectionSecretKeys:
-    - kubeconfig
   versions:
     - name: v1alpha1
       served: true
@@ -78,7 +76,7 @@ spec:
                         Crossplane ProviderConfig to use for
                         provisioning this resource.
                       type: string
-                      default: vault-provider-config
+                      default: default
                   required:
                     - id
                     - dataJsonSecretRef

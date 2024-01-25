@@ -12,7 +12,6 @@ PLATFORMS ?= linux_amd64
 # Setup Kubernetes tools
 
 KUBECTL_VERSION = v1.27.3
-UXP_VERSION = "1.14.0-up.1"
 UP_VERSION = v0.21.0
 UP_CHANNEL = stable
 UPTEST_VERSION = v0.10.0
@@ -24,7 +23,7 @@ UPTEST_VERSION = v0.10.0
 # certain conventions such as the default examples root or package directory.
 XPKG_DIR = $(shell pwd)
 XPKG_EXAMPLES_DIR = examples
-XPKG_IGNORE = .github/workflows/ci.yaml,.github/workflows/tag.yml,.github/workflows/e2e.yaml,.github/workflows/yamllint.yaml,init/*.yaml,.work/uptest-datasource.yaml
+XPKG_IGNORE = .github/workflows/ci.yaml,.github/workflows/tag.yml,.github/workflows/e2e.yaml,.github/workflows/yamllint.yaml,init/*.yaml,.work/uptest-datasource.yaml,test/provider/*.yaml,examples/*.yaml
 
 XPKG_REG_ORGS ?= xpkg.upbound.io/upbound
 # NOTE(hasheddan): skip promoting on xpkg.upbound.io as channel tags are
@@ -79,8 +78,15 @@ uptest: $(UPTEST) $(KUBECTL) $(KUTTL)
 # - UPTEST_CLOUD_CREDENTIALS, cloud credentials for the provider being tested, e.g. export UPTEST_CLOUD_CREDENTIALS=$(cat ~/.aws/credentials)
 e2e: build controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME) uptest
 
-bootstrap:
-	examples/bootstrap-dev-env.sh
+bootstrap: build controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME)
+	test/setup.sh
+	$(KUBECTL) apply -f examples/vault.yaml
+	$(KUBECTL) wait vault.sec.upbound.io configuration-vault --for=condition=Ready --timeout 20m
+	# Check for readiness again to be sure because the first readiness 
+	# has previously prematurely returned.
+	$(KUBECTL) wait vault.sec.upbound.io configuration-vault --for=condition=Ready --timeout 20m
+	$(KUBECTL) -n vault port-forward vault-0 8200 &
+	test/verify.sh
 
 render:
 	crossplane beta render examples/vault.yaml apis/vault/composition.yaml examples/functions.yaml -r
