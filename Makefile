@@ -80,8 +80,7 @@ uptest: $(UPTEST) $(KUBECTL) $(KUTTL)
 # - UPTEST_CLOUD_CREDENTIALS, cloud credentials for the provider being tested, e.g. export UPTEST_CLOUD_CREDENTIALS=$(cat ~/.aws/credentials)
 e2e: build controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME) uptest
 
-bootstrap: build controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME)
-	test/setup.sh
-	test/verify.sh
+bootstrap:
+	examples/bootstrap-dev-env.sh
 
-.PHONY: uptest e2e
+.PHONY: uptest e2e bootstrap

@@ -3,7 +3,7 @@
 SCRIPT_DIR=$( cd -- $( dirname -- "${BASH_SOURCE[0]}" ) &> /dev/null && pwd )
 K=${KUBECTL}
 kind create cluster --name uxp
-# up uxp install --set "args={--debug, --enable-realtime-compositions}"
+
 up uxp install \
   --set "resourcesCrossplane.limits.cpu=3000m" \
   --set "resourcesCrossplane.limits.memory=3Gi" \
@@ -17,6 +17,7 @@ ${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/provider-manifests
 ${KUBECTL} wait provider.pkg --all --timeout 5m --for condition=Healthy
 ${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/provider-kubernetes-config.yaml
 
+# Setup per https://github.com/crossplane-contrib/provider-kubernetes
 SA=$(${KUBECTL} -n upbound-system get sa -o name|grep provider-kubernetes|\
    sed -e "s|serviceaccount\/|upbound-system:|g")
 ${KUBECTL} create clusterrolebinding provider-kubernetes-admin-binding \
@@ -45,4 +46,4 @@ ${KUBECTL} -n vault port-forward vault-0 8200 2>&1 >/dev/null &
 sleep 10
 ${SCRIPT_DIR}/../test/verify.sh 2>/dev/null
 
-echo "\nexport VAULT_ADDR=http://127.0.0.1:8200 to be able to use the vault cli"
+echo "export VAULT_ADDR=http://127.0.0.1:8200 to be able to use the vault cli"
