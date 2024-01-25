@@ -430,7 +430,7 @@ export VAULT_ADDR="http://127.0.0.1:8200"
 export VAULT_TOKEN="root"
 vault login - <<< $VAULT_TOKEN
 ```
-<code>
+```
 Success! You are now authenticated. The token information displayed below
 is already stored in the token helper. You do NOT need to run "vault login"
 again. Future Vault requests will automatically use this token.
@@ -444,22 +444,22 @@ token_renewable      false
 token_policies       ["root"]
 identity_policies    []
 policies             ["root"]
-<code>
+```
 
 ```
 vault policy list
 ```
-<code>
+```
 admin-policy
 default
 eaas-client-policy
 root
-</code>
+```
 
 ```
 vault secrets list
 ```
-<code>
+```
 Path          Type         Accessor              Description
 ----          ----         --------              -----------
 cubbyhole/    cubbyhole    cubbyhole_769b3270    per-token private secret storage
@@ -468,16 +468,16 @@ kv-v2/        kv           kv_fd07aac4           Crossplane created secret mount
 secret/       kv           kv_1771f5a7           key/value secret storage
 sys/          system       system_e90ffc6f       system endpoints used for control, policy and debugging
 transit/      transit      transit_6ff2abac      Crossplane created secret mount.
-</code>
+```
 
 ```
 vault list transit/keys
 ```
-<code>
+```
 Keys
 ----
 payment
-</code>
+```
 
 Log in as student user, encrypt plain text with transit key, and decrypt.
 Note that the output shown, especially the tokens will be different for
@@ -490,11 +490,11 @@ Below, use password: changeme
 ```
 vault login -method=userpass username=student
 ```
-<code>
+
 Success! You are now authenticated. The token information displayed below
 is already stored in the token helper. You do NOT need to run "vault login"
 again. Future Vault requests will automatically use this token.
-
+```
 Key                    Value
 ---                    -----
 token                  hvs.CAESIBF-rSjSmFr43dZ8qgSK6U8FGJtKKGsk0O9Vv08zGG0SGh4KHGh2cy5Bbzduc2cwY0FON0hobzFnUzBaOUpFdUc
@@ -505,30 +505,30 @@ token_policies         ["admin-policy" "default" "eaas-client-policy"]
 identity_policies      []
 policies               ["admin-policy" "default" "eaas-client-policy"]
 token_meta_username    student
-</code>
+```
 
 Encrypt and store information.
 ```
 vault write transit/encrypt/payment \
     plaintext=$(base64 <<< "1111-2222-3333-4444")
 ```
-<code>
+```
 Key            Value
 ---            -----
 ciphertext     vault:v1:HmEcYSDI/dEHZgNQDC0EoQ58c/V2fNJUQIz3hfayywgriEpfhaqrtHLFqz7J/3Wt
 key_version    1
-</code>
+```
 
 Decrypt the information.
 ```
 vault write transit/decrypt/payment \
     ciphertext="<COPY_THE_OUTPUT_CIPHER_FROM_ABOVE"
 ```
-<code>
+```
 Key          Value
 ---          -----
 plaintext    MTExMS0yMjIyLTMzMzMtNDQ0NAo=
-</code>
+```
 
 Decode the base64 encoded plaintext.
 ```
