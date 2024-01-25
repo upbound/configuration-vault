@@ -63,3 +63,112 @@ Github repository to perform the steps described in this tutorial.
 git clone git@github.com:upbound/configuration-vault.git
 ```
 
+2. Change the working directory to `configuration-vault`.
+```
+cd configuration-vault
+```
+The directory contains the Crossplane compositions to setup and configure
+Vault.
+```
+tree
+```
+<code>
+.
+├── LICENSE
+├── Makefile
+├── README.md
+├── _output
+│   └── xpkg
+│       ├── cache
+│       │   ├── configuration-vault-v0.0.0-10.g5f06c7b.dirty.gz
+│       │   ├── configuration-vault-v0.0.0-11.g55cf092.dirty.gz
+│       │   ├── configuration-vault-v0.0.0-11.g55cf092.gz
+│       │   ├── configuration-vault-v0.0.0-12.gd1f7aa6.dirty.gz
+│       │   └── configuration-vault-v0.0.0-9.g59a45e7.dirty.gz
+│       └── linux_arm64
+│           ├── configuration-vault-v0.0.0-10.g5f06c7b.dirty.xpkg
+│           ├── configuration-vault-v0.0.0-11.g55cf092.dirty.xpkg
+│           ├── configuration-vault-v0.0.0-11.g55cf092.xpkg
+│           ├── configuration-vault-v0.0.0-12.gd1f7aa6.dirty.xpkg
+│           └── configuration-vault-v0.0.0-9.g59a45e7.dirty.xpkg
+├── apis
+│   └── vault
+│       ├── README.md
+│       ├── auth
+│       │   ├── composition.yaml
+│       │   └── definition.yaml
+│       ├── composition.yaml
+│       ├── definition.yaml
+│       ├── install
+│       │   ├── composition.yaml
+│       │   └── definition.yaml
+│       ├── policies
+│       │   ├── composition.yaml
+│       │   └── definition.yaml
+│       ├── secrets
+│       │   ├── composition.yaml
+│       │   └── definition.yaml
+│       └── user
+│           ├── composition.yaml
+│           └── definition.yaml
+├── build
+│   ├── CODEOWNERS
+│   ├── CODE_OF_CONDUCT.md
+│   ├── CONTRIBUTING.md
+│   ├── DCO
+│   ├── LICENSE
+│   ├── README.md
+│   ├── common.sh
+│   ├── cross
+│   │   ├── Dockerfile
+│   │   ├── Makefile
+│   │   ├── rsyncd.sh
+│   │   ├── run.sh
+│   │   └── xvfb-chrome
+│   ├── makelib
+│   │   ├── common.mk
+│   │   ├── controlplane.mk
+│   │   ├── docs.mk
+│   │   ├── golang.mk
+│   │   ├── helm.mk
+│   │   ├── image.mk
+│   │   ├── imagelight.mk
+│   │   ├── k8s_tools.mk
+│   │   ├── local.mk
+│   │   ├── local.xpkg.mk
+│   │   ├── nodejs.mk
+│   │   ├── output.mk
+│   │   ├── xpkg.mk
+│   │   └── yarnjs.mk
+│   ├── reset
+│   ├── run
+│   └── scripts
+│       ├── load-configs.sh
+│       ├── localdev-deploy-component.sh
+│       ├── localdev-prepare.sh
+│       ├── localdev-remove-component.sh
+│       ├── localdev-scaffold.sh
+│       └── utils.sh
+├── crossplane.yaml
+├── docs
+├── examples
+│   ├── README.md
+│   ├── auth.yaml
+│   ├── bootstrap-dev-env.sh
+│   ├── function-manifests
+│   │   └── function-patch-and-transform.yaml
+│   ├── policy.yaml
+│   ├── provider-kubernetes-config.yaml
+│   ├── provider-manifests
+│   │   ├── provider-helm.yaml
+│   │   ├── provider-kubernetes.yaml
+│   │   └── provider-vault.yaml
+│   ├── secrets.yaml
+│   ├── vault.yaml
+│   ├── vaultinstall.yaml
+│   └── vaultuser.yaml
+├── kubeconfig
+└── test
+    ├── setup.sh
+    └── verify.sh
+</code>
