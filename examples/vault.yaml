@@ -2,6 +2,7 @@ apiVersion: sec.upbound.io/v1alpha1
 kind: Vault
 metadata:
   name: configuration-vault
+  namespace: default
 spec:
   parameters:
     id: configuration-vault
