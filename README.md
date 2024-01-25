@@ -45,7 +45,7 @@ Crossplane to provision the following Vault resources.
 |------------:|----------:|---------------------------------
 | ACL Policy  | admin     | Sets policies for the admin team
 | ACL Policy  | client    | Sets policies for clients to encrypt/decrypt data through transit secrets engine
-| auth method | userpass  | Enable and create a user, "student" with admins and fpe-client policies
+| auth method | userpass  | Enable and create a user, "student" with admins and eaas-client policies
 | secrets engine | transit | Enable transit secrets engine at transit
 | encryption key | payment | Encryption key to encrypt/decrypt data
 
@@ -135,8 +135,10 @@ creating the following composite resources:
 - XSecret
 - XVaultInstall
 - XVaultUser
+
 Each of them composes next level resources within their respective
 composition files in the `apis/vault` subdirectories.
+
 <code>
 ---
 apiVersion: apiextensions.crossplane.io/v1
@@ -245,7 +247,7 @@ spec:
 
 4. Open the `apis/vault/definition.yaml`. It contains the API definition
 specifying the parameters that the implementation in the composition can use.
-Individual parameters may be required or optional. The API or also known
+Individual parameters may be required or optional. The API also known
 as composite resource definition uses the
 [openAPIV3Schema](https://swagger.io/specification/).
 API definitions can contain status fields that may be populated with
