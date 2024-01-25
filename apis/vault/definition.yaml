@@ -65,14 +65,18 @@ spec:
                         where the data is written will be
                         auth/userpass/users/<user>.
                     deletionPolicy:
-                      description: When the Composition is deleted, delete the AWS resources. Defaults to Delete
+                      description: >-
+                        When the Composition is deleted, delete the
+                        AWS resources. Defaults to Delete.
                       enum:
                         - Delete
                         - Orphan
                       type: string
                       default: Delete
                     providerConfigName:
-                      description: Crossplane ProviderConfig to use for provisioning this resources
+                      description: >-
+                        Crossplane ProviderConfig to use for
+                        provisioning this resource.
                       type: string
                       default: vault-provider-config
                   required:
