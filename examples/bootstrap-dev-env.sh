@@ -3,11 +3,12 @@
 SCRIPT_DIR=$( cd -- $( dirname -- "${BASH_SOURCE[0]}" ) &> /dev/null && pwd )
 K=${KUBECTL}
 kind create cluster --name uxp
-up uxp install --set "args={--debug, --enable-realtime-compositions}" \
- 	--set "resourcesCrossplane.limits.cpu=3000m" \
-	--set "resourcesCrossplane.limits.memory=3Gi" \
-	--set "resourcesCrossplane.requests.cpu=3000m" \
-	--set "resourcesCrossplane.requests.memory=3Gi"
+# up uxp install --set "args={--debug, --enable-realtime-compositions}"
+up uxp install \
+  --set "resourcesCrossplane.limits.cpu=3000m" \
+  --set "resourcesCrossplane.limits.memory=3Gi" \
+  --set "resourcesCrossplane.requests.cpu=3000m" \
+  --set "resourcesCrossplane.requests.memory=3Gi"
 ${KUBECTL} -n upbound-system wait --timeout=5m --for=condition=Available deployment --all
 
 ${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/provider-manifests

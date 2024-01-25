@@ -36,7 +36,6 @@ XPKGS = $(PROJECT_NAME)
 
 CROSSPLANE_NAMESPACE = upbound-system
 CROSSPLANE_ARGS = "--enable-usages"
-# CROSSPLANE_ARGS = "--enable-usages,--enable-realtime-compositions,--debug"
 KIND_CLUSTER_NAME = "uxp"
 KIND_VERSION = "v1.27.3"
 -include build/makelib/local.xpkg.mk

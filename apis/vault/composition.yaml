@@ -3,7 +3,6 @@ kind: Composition
 metadata:
   name: xvaults.sec.upbound.io
 spec:
-  writeConnectionSecretsToNamespace: upbound-system
   compositeTypeRef:
     apiVersion: sec.upbound.io/v1alpha1
     kind: XVault
