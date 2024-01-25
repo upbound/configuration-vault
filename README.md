@@ -105,7 +105,6 @@ tree
 │           └── definition.yaml
 ├── build
 ├── crossplane.yaml
-├── docs
 ├── examples
 │   ├── README.md
 │   ├── auth.yaml
