@@ -3,6 +3,7 @@
 SCRIPT_DIR=$( cd -- $( dirname -- "${BASH_SOURCE[0]}" ) &> /dev/null && pwd )
 ${KUBECTL} -n upbound-system wait --timeout=5m --for=condition=Available deployment --all
 
+${KUBECTL} wait function.pkg --all --timeout 5m --for condition=Healthy
 ${KUBECTL} wait provider.pkg --all --timeout 5m --for condition=Healthy
 ${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/provider-kubernetes-config.yaml
 

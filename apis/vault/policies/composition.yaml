@@ -2,124 +2,139 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
+  creationTimestamp: "2024-01-25T00:35:08Z"
   name: xpolicys.sec.upbound.io
 spec:
   compositeTypeRef:
     apiVersion: sec.upbound.io/v1alpha1
     kind: XPolicy
-  resources:
-    - name: admin-policy
-      base:
-        apiVersion: vault.vault.upbound.io/v1alpha1
-        kind: Policy
-        spec:
-          deletionPolicy: Delete
-          forProvider:
-            name: "admin-policy"
-            policy: |
-              path "auth/*"
-              {
-                capabilities = ["create", "read", "update", "delete", "list", "sudo"]
-              }
+  mode: Pipeline
+  pipeline:
+    - functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          - base:
+              apiVersion: vault.vault.upbound.io/v1alpha1
+              kind: Policy
+              spec:
+                deletionPolicy: Delete
+                forProvider:
+                  name: admin-policy
+                  policy: |
+                    path "auth/*"
+                    {
+                      capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+                    }
 
-              path "sys/auth/*"
-              {
-                capabilities = ["create", "update", "delete", "sudo"]
-              }
+                    path "sys/auth/*"
+                    {
+                      capabilities = ["create", "update", "delete", "sudo"]
+                    }
 
-              path "sys/auth"
-              {
-                capabilities = ["read"]
-              }
+                    path "sys/auth"
+                    {
+                      capabilities = ["read"]
+                    }
 
-              path "sys/policies/acl/*"
-              {
-                capabilities = ["create", "read", "update", "delete", "list", "sudo"]
-              }
+                    path "sys/policies/acl/*"
+                    {
+                      capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+                    }
 
-              path "sys/policies/acl"
-              {
-                capabilities = ["list"]
-              }
+                    path "sys/policies/acl"
+                    {
+                      capabilities = ["list"]
+                    }
 
-              path "sys/mounts/*"
-              {
-                capabilities = ["create", "read", "update", "delete", "list", "sudo"]
-              }
+                    path "sys/mounts/*"
+                    {
+                      capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+                    }
 
-              path "sys/mounts"
-              {
-                capabilities = ["read", "list"]
-              }
+                    path "sys/mounts"
+                    {
+                      capabilities = ["read", "list"]
+                    }
 
-              path "secret/*"
-              {
-                capabilities = ["create", "read", "update", "delete", "list", "sudo"]
-              }
+                    path "secret/*"
+                    {
+                      capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+                    }
 
-              path "transit/*"
-              {
-                capabilities = ["create", "read", "update", "delete", "list", "sudo"]
-              }
+                    path "transit/*"
+                    {
+                      capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+                    }
 
-              path "sys/health"
-              {
-                capabilities = ["read", "sudo"]
-              }
-      patches:
-        - fromFieldPath: spec.parameters.id
-          toFieldPath: metadata.name
-          transforms:
-            - type: string
-              string:
-                fmt: "%s-admin-policy"
-        - fromFieldPath: spec.parameters.providerConfigName
-          toFieldPath: spec.providerConfigRef.name
-        - type: ToCompositeFieldPath
-          fromFieldPath: status.atProvider
-          toFieldPath: status.vaultAdminPolicy
-    - name: eaas-client-policy
-      base:
-        apiVersion: vault.vault.upbound.io/v1alpha1
-        kind: Policy
-        spec:
-          deletionPolicy: Delete
-          forProvider:
-            name: "eaas-client-policy"
-            policy: |
-              # Permits CRUD operation on kv-v2
-              path "kv-v2/data/*" {
-                capabilities = ["create", "read", "update", "delete", "list"]
-              }
+                    path "sys/health"
+                    {
+                      capabilities = ["read", "sudo"]
+                    }
+            name: admin-policy
+            patches:
+              - fromFieldPath: spec.parameters.id
+                toFieldPath: metadata.name
+                transforms:
+                  - string:
+                      fmt: '%s-admin-policy'
+                      type: Format
+                    type: string
+                type: FromCompositeFieldPath
+              - fromFieldPath: spec.parameters.providerConfigName
+                toFieldPath: spec.providerConfigRef.name
+                type: FromCompositeFieldPath
+              - fromFieldPath: status.atProvider
+                toFieldPath: status.vaultAdminPolicy
+                type: ToCompositeFieldPath
+          - base:
+              apiVersion: vault.vault.upbound.io/v1alpha1
+              kind: Policy
+              spec:
+                deletionPolicy: Delete
+                forProvider:
+                  name: eaas-client-policy
+                  policy: |
+                    # Permits CRUD operation on kv-v2
+                    path "kv-v2/data/*" {
+                      capabilities = ["create", "read", "update", "delete", "list"]
+                    }
 
-              # Encrypt data with 'payment' key
-              path "transit/encrypt/payment" {
-                capabilities = ["update"]
-              }
+                    # Encrypt data with 'payment' key
+                    path "transit/encrypt/payment" {
+                      capabilities = ["update"]
+                    }
 
-              # Decrypt data with 'payment' key
-              path "transit/decrypt/payment" {
-                capabilities = ["update"]
-              }
+                    # Decrypt data with 'payment' key
+                    path "transit/decrypt/payment" {
+                      capabilities = ["update"]
+                    }
 
-              # Read and list keys under transit secrets engine
-              path "transit/*" {
-                capabilities = ["read", "list"]
-              }
+                    # Read and list keys under transit secrets engine
+                    path "transit/*" {
+                      capabilities = ["read", "list"]
+                    }
 
-              # List enabled secrets engines
-              path "secret/metadata/*" {
-                 capabilities = ["list"]
-              }
-      patches:
-        - fromFieldPath: spec.parameters.id
-          toFieldPath: metadata.name
-          transforms:
-            - type: string
-              string:
-                fmt: "%s-eaas-client-policy"
-        - fromFieldPath: spec.parameters.providerConfigName
-          toFieldPath: spec.providerConfigRef.name
-        - type: ToCompositeFieldPath
-          fromFieldPath: status.atProvider
-          toFieldPath: status.vaultEaasClientPolicy
+                    # List enabled secrets engines
+                    path "secret/metadata/*" {
+                       capabilities = ["list"]
+                    }
+            name: eaas-client-policy
+            patches:
+              - fromFieldPath: spec.parameters.id
+                toFieldPath: metadata.name
+                transforms:
+                  - string:
+                      fmt: '%s-eaas-client-policy'
+                      type: Format
+                    type: string
+                type: FromCompositeFieldPath
+              - fromFieldPath: spec.parameters.providerConfigName
+                toFieldPath: spec.providerConfigRef.name
+                type: FromCompositeFieldPath
+              - fromFieldPath: status.atProvider
+                toFieldPath: status.vaultEaasClientPolicy
+                type: ToCompositeFieldPath
+      step: patch-and-transform

@@ -1,81 +1,103 @@
+---
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
+  creationTimestamp: "2024-01-25T00:33:27Z"
   name: xvaults.sec.upbound.io
 spec:
   compositeTypeRef:
     apiVersion: sec.upbound.io/v1alpha1
     kind: XVault
-  resources:
-    - name: xVaultInstall
-      base:
-        apiVersion: sec.upbound.io/v1alpha1
-        kind: XVaultInstall
-      patches:
-        - fromFieldPath: spec.parameters.id
-          toFieldPath: spec.parameters.id
-          transforms:
-            - type: string
-              string:
-                fmt: "%s-install"
-        - type: ToCompositeFieldPath
-          fromFieldPath: status.xVaultInstall
-          toFieldPath: status.vaultXVaultInstall
-          policy:
-            fromFieldPath: Required
-    - name: xVaultAuth
-      base:
-        apiVersion: sec.upbound.io/v1alpha1
-        kind: XAuth
-      patches:
-        - fromFieldPath: spec.parameters.id
-          toFieldPath: spec.parameters.id
-          transforms:
-            - type: string
-              string:
-                fmt: "%s-auth"
-        - fromFieldPath: spec.parameters.dataJsonSecretRef
-          toFieldPath: spec.parameters.dataJsonSecretRef
-        - fromFieldPath: spec.parameters.user
-          toFieldPath: spec.parameters.user
-        - fromFieldPath: status.vaultXVaultInstall.state
-          toFieldPath: spec.parameters.vaultDeployedState
-          policy:
-            fromFieldPath: Required
-    - name: xVaultSecrets
-      base:
-        apiVersion: sec.upbound.io/v1alpha1
-        kind: XSecret
-        spec:
-          parameters:
-            providerConfigName: vault-provider-config
-      patches:
-        - fromFieldPath: spec.parameters.id
-          toFieldPath: spec.parameters.id
-        - fromFieldPath: spec.parameters.transitKeyName
-          toFieldPath: spec.parameters.transitKeyName
-        - fromFieldPath: status.vaultXVaultInstall.state
-          toFieldPath: spec.parameters.vaultDeployedState
-          policy:
-            fromFieldPath: Required
-    - name: xVaultPolicies
-      base:
-        apiVersion: sec.upbound.io/v1alpha1
-        kind: XPolicy
-        spec:
-          parameters:
-            providerConfigName: vault-provider-config
-      patches:
-        - fromFieldPath: spec.parameters.id
-          toFieldPath: spec.parameters.id
-        - fromFieldPath: status.vaultXVaultInstall.state
-          toFieldPath: spec.parameters.vaultDeployedState
-          policy:
-            fromFieldPath: Required
-    - name: xVaultUser
-      base:
-        apiVersion: sec.upbound.io/v1alpha1
-        kind: XVaultUser
-        spec:
-          parameters:
-            id: configuration-vault-user
+  mode: Pipeline
+  pipeline:
+    - functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          - base:
+              apiVersion: sec.upbound.io/v1alpha1
+              kind: XVaultInstall
+            name: xVaultInstall
+            patches:
+              - fromFieldPath: spec.parameters.id
+                toFieldPath: spec.parameters.id
+                transforms:
+                  - string:
+                      fmt: '%s-install'
+                      type: Format
+                    type: string
+                type: FromCompositeFieldPath
+              - fromFieldPath: status.xVaultInstall
+                policy:
+                  fromFieldPath: Required
+                toFieldPath: status.vaultXVaultInstall
+                type: ToCompositeFieldPath
+          - base:
+              apiVersion: sec.upbound.io/v1alpha1
+              kind: XAuth
+            name: xVaultAuth
+            patches:
+              - fromFieldPath: spec.parameters.id
+                toFieldPath: spec.parameters.id
+                transforms:
+                  - string:
+                      fmt: '%s-auth'
+                      type: Format
+                    type: string
+                type: FromCompositeFieldPath
+              - fromFieldPath: spec.parameters.dataJsonSecretRef
+                toFieldPath: spec.parameters.dataJsonSecretRef
+                type: FromCompositeFieldPath
+              - fromFieldPath: spec.parameters.user
+                toFieldPath: spec.parameters.user
+                type: FromCompositeFieldPath
+              - fromFieldPath: status.vaultXVaultInstall.state
+                policy:
+                  fromFieldPath: Required
+                toFieldPath: spec.parameters.vaultDeployedState
+                type: FromCompositeFieldPath
+          - base:
+              apiVersion: sec.upbound.io/v1alpha1
+              kind: XSecret
+              spec:
+                parameters:
+                  providerConfigName: vault-provider-config
+            name: xVaultSecrets
+            patches:
+              - fromFieldPath: spec.parameters.id
+                toFieldPath: spec.parameters.id
+                type: FromCompositeFieldPath
+              - fromFieldPath: spec.parameters.transitKeyName
+                toFieldPath: spec.parameters.transitKeyName
+                type: FromCompositeFieldPath
+              - fromFieldPath: status.vaultXVaultInstall.state
+                policy:
+                  fromFieldPath: Required
+                toFieldPath: spec.parameters.vaultDeployedState
+                type: FromCompositeFieldPath
+          - base:
+              apiVersion: sec.upbound.io/v1alpha1
+              kind: XPolicy
+              spec:
+                parameters:
+                  providerConfigName: vault-provider-config
+            name: xVaultPolicies
+            patches:
+              - fromFieldPath: spec.parameters.id
+                toFieldPath: spec.parameters.id
+                type: FromCompositeFieldPath
+              - fromFieldPath: status.vaultXVaultInstall.state
+                policy:
+                  fromFieldPath: Required
+                toFieldPath: spec.parameters.vaultDeployedState
+                type: FromCompositeFieldPath
+          - base:
+              apiVersion: sec.upbound.io/v1alpha1
+              kind: XVaultUser
+              spec:
+                parameters:
+                  id: configuration-vault-user
+            name: xVaultUser
+      step: patch-and-transform

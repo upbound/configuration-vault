@@ -2,130 +2,144 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
+  creationTimestamp: "2024-01-25T00:34:10Z"
   name: xvaultinstalls.sec.upbound.io
 spec:
   compositeTypeRef:
     apiVersion: sec.upbound.io/v1alpha1
     kind: XVaultInstall
-  resources:
-    - name: vault-namespace
-      base:
-        apiVersion: kubernetes.crossplane.io/v1alpha1
-        kind: Object
-        spec:
-          deletionPolicy: Delete
-          forProvider:
-            manifest:
-              apiVersion: v1
-              kind: Namespace
+  mode: Pipeline
+  pipeline:
+    - functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        environment: null
+        kind: Resources
+        patchSets: []
+        resources:
+          - base:
+              apiVersion: kubernetes.crossplane.io/v1alpha1
+              kind: Object
+              spec:
+                deletionPolicy: Delete
+                forProvider:
+                  manifest:
+                    apiVersion: v1
+                    kind: Namespace
+                    metadata:
+                      name: vault
+                providerConfigRef:
+                  name: kubernetes-provider-config
+            name: vault-namespace
+          - base:
+              apiVersion: kubernetes.crossplane.io/v1alpha1
+              kind: Object
               metadata:
-                name: vault
-          providerConfigRef:
-            name: kubernetes-provider-config
-    - name: vault-creds
-      base:
-        apiVersion: kubernetes.crossplane.io/v1alpha1
-        kind: Object
-        metadata:
-          name: kubernetes-vault-creds-secret
-        spec:
-          deletionPolicy: Delete
-          forProvider:
-            manifest:
-              apiVersion: v1
-              kind: Secret
-              metadata:
-                name: vault-creds
-                namespace: vault
-              stringData:
-                credentials: |
-                  {
-                    "token_name": "vault-creds-test-token",
-                    "token": "root"
-                  }
-            type: Opaque
-          providerConfigRef:
-            name: kubernetes-provider-config
-    - name: vault-helm-release
-      base:
-        apiVersion: helm.crossplane.io/v1beta1
-        kind: Release
-        metadata:
-          annotations:
-            crossplane.io/external-name: vault
-        spec:
-          deletionPolicy: Delete
-          rollbackLimit: 3
-          forProvider:
-            namespace: vault
-            skipCreateNamespace: false
-            chart:
-              name: vault
-              repository: https://helm.releases.hashicorp.com
-              version: "0.27.0"
-            values:
-              server:
-                dev:
-                  enabled: true
-                  devRootToken: root
-            wait: true
-          providerConfigRef:
-            name: helm-provider-config
-      patches:
-        - type: ToCompositeFieldPath
-          fromFieldPath: status.atProvider
-          toFieldPath: status.xVaultInstall
-          policy:
-            fromFieldPath: Required
-    - name: helm-provider-config
-      base:
-        apiVersion: kubernetes.crossplane.io/v1alpha1
-        kind: Object
-        spec:
-          deletionPolicy: Delete
-          forProvider:
-            manifest:
+                name: kubernetes-vault-creds-secret
+              spec:
+                deletionPolicy: Delete
+                forProvider:
+                  manifest:
+                    apiVersion: v1
+                    kind: Secret
+                    metadata:
+                      name: vault-creds
+                      namespace: vault
+                    stringData:
+                      credentials: |
+                        {
+                          "token_name": "vault-creds-test-token",
+                          "token": "root"
+                        }
+                    type: Opaque
+                providerConfigRef:
+                  name: kubernetes-provider-config
+            name: vault-creds
+          - base:
               apiVersion: helm.crossplane.io/v1beta1
-              kind: ProviderConfig
+              kind: Release
               metadata:
-                name: helm-provider-config
+                annotations:
+                  crossplane.io/external-name: vault
               spec:
-                credentials:
-                  source: InjectedIdentity
-          providerConfigRef:
-            name: kubernetes-provider-config
-    - name: vault-provider-config
-      base:
-        apiVersion: kubernetes.crossplane.io/v1alpha1
-        kind: Object
-        spec:
-          deletionPolicy: Delete
-          forProvider:
-            manifest:
-              apiVersion: vault.upbound.io/v1beta1
-              kind: ProviderConfig
-              metadata:
-                name: vault-provider-config
+                deletionPolicy: Delete
+                forProvider:
+                  chart:
+                    name: vault
+                    repository: https://helm.releases.hashicorp.com
+                    version: 0.27.0
+                  namespace: vault
+                  skipCreateNamespace: false
+                  values:
+                    server:
+                      dev:
+                        devRootToken: root
+                        enabled: true
+                  wait: true
+                providerConfigRef:
+                  name: helm-provider-config
+                rollbackLimit: 3
+            name: vault-helm-release
+            patches:
+              - fromFieldPath: status.atProvider
+                policy:
+                  fromFieldPath: Required
+                toFieldPath: status.xVaultInstall
+                type: ToCompositeFieldPath
+          - base:
+              apiVersion: kubernetes.crossplane.io/v1alpha1
+              kind: Object
               spec:
-                add_address_to_env: false
-                headers: {name: test, value: "e2e"}
-                max_lease_ttl_seconds: 300
-                max_retries: 10
-                max_retries_ccc: 10
-                namespace: vault
-                skip_child_token: true
-                skip_get_vault_version: true
-                skip_tls_verify: true
-                tls_server_name: ""
-                vault_version_override: "1.15.2"
-                credentials:
-                  source: Secret
-                  secretRef:
-                    name: vault-creds
-                    namespace: vault
-                    key: credentials
-          providerConfigRef:
-            name: kubernetes-provider-config
-      patches:
-        - fromFieldPath: spec.parameters.vaultAddress
-          toFieldPath: spec.forProvider.manifest.spec.address
+                deletionPolicy: Delete
+                forProvider:
+                  manifest:
+                    apiVersion: helm.crossplane.io/v1beta1
+                    kind: ProviderConfig
+                    metadata:
+                      name: helm-provider-config
+                    spec:
+                      credentials:
+                        source: InjectedIdentity
+                providerConfigRef:
+                  name: kubernetes-provider-config
+            name: helm-provider-config
+          - base:
+              apiVersion: kubernetes.crossplane.io/v1alpha1
+              kind: Object
+              spec:
+                deletionPolicy: Delete
+                forProvider:
+                  manifest:
+                    apiVersion: vault.upbound.io/v1beta1
+                    kind: ProviderConfig
+                    metadata:
+                      name: vault-provider-config
+                    spec:
+                      add_address_to_env: false
+                      credentials:
+                        secretRef:
+                          key: credentials
+                          name: vault-creds
+                          namespace: vault
+                        source: Secret
+                      headers:
+                        name: test
+                        value: e2e
+                      max_lease_ttl_seconds: 300
+                      max_retries: 10
+                      max_retries_ccc: 10
+                      namespace: vault
+                      skip_child_token: true
+                      skip_get_vault_version: true
+                      skip_tls_verify: true
+                      tls_server_name: ""
+                      vault_version_override: 1.15.2
+                providerConfigRef:
+                  name: kubernetes-provider-config
+            name: vault-provider-config
+            patches:
+              - fromFieldPath: spec.parameters.vaultAddress
+                toFieldPath: spec.forProvider.manifest.spec.address
+                type: FromCompositeFieldPath
+      step: patch-and-transform

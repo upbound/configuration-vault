@@ -24,6 +24,10 @@ spec:
             spec:
               type: object
               properties:
+                forProvider:
+                  type: object
+                  description: >-
+                    Empty forProvider.
                 parameters:
                   type: object
                   description: >-

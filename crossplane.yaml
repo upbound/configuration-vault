@@ -26,3 +26,5 @@ spec:
       version: ">=v0.16.0"
     - provider: xpkg.upbound.io/crossplane-contrib/provider-kubernetes
       version: ">=v0.11.1"
+    - function: xpkg.upbound.io/upbound/function-patch-and-transform
+      version: "v0.2.1"

@@ -11,6 +11,8 @@ up uxp install \
   --set "resourcesCrossplane.requests.memory=3Gi"
 ${KUBECTL} -n upbound-system wait --timeout=5m --for=condition=Available deployment --all
 
+${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/function-manifests
+${KUBECTL} wait function.pkg --all --timeout 5m --for condition=Healthy
 ${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/provider-manifests
 ${KUBECTL} wait provider.pkg --all --timeout 5m --for condition=Healthy
 ${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/provider-kubernetes-config.yaml
@@ -31,9 +33,12 @@ find ${SCRIPT_DIR}/../apis -name "composition.yaml"|\
 ${KUBECTL} apply -f ${SCRIPT_DIR}/../examples/vault.yaml
 
 echo "waiting for managed resource readiness. This takes several minutes"
-${KUBECTL} wait vault.sec.upbound.io configuration-vault --timeout 5m \
+${KUBECTL} wait vault.sec.upbound.io configuration-vault --timeout 25m \
     --for condition="Ready"
-${KUBECTL} -n vault wait --timeout=5m --for=condition=Available deployment --all
+# Be sure that resources are really ready
+${KUBECTL} wait vault.sec.upbound.io configuration-vault --timeout 25m \
+    --for condition="Ready"
+${KUBECTL} -n vault wait --timeout=25m --for=condition=Available deployment --all
 
 crossplane beta trace vault.sec.upbound.io configuration-vault
 ${KUBECTL} -n vault port-forward vault-0 8200 2>&1 >/dev/null &
