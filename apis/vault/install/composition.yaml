@@ -89,25 +89,6 @@ spec:
               - fromFieldPath: spec.parameters.providerConfigName
                 toFieldPath: spec.providerConfigRef.name
                 type: FromCompositeFieldPath
-#         - base:
-#             apiVersion: kubernetes.crossplane.io/v1alpha1
-#             kind: Object
-#             spec:
-#               deletionPolicy: Delete
-#               forProvider:
-#                 manifest:
-#                   apiVersion: helm.crossplane.io/v1beta1
-#                   kind: ProviderConfig
-#                   metadata:
-#                     name: helm-provider-config
-#                   spec:
-#                     credentials:
-#                       source: InjectedIdentity
-#           patches:
-#             - fromFieldPath: spec.parameters.providerConfigName
-#               toFieldPath: spec.providerConfigRef.name
-#               type: FromCompositeFieldPath
-#           name: helm-provider-config
           - base:
               apiVersion: kubernetes.crossplane.io/v1alpha1
               kind: Object
