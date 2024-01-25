@@ -78,8 +78,15 @@ uptest: $(UPTEST) $(KUBECTL) $(KUTTL)
 # - UPTEST_CLOUD_CREDENTIALS, cloud credentials for the provider being tested, e.g. export UPTEST_CLOUD_CREDENTIALS=$(cat ~/.aws/credentials)
 e2e: build controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME) uptest
 
-bootstrap:
-	examples/bootstrap-dev-env.sh
+bootstrap: build controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME)
+	test/setup.sh
+	$(KUBECTL) apply -f examples/vault.yaml
+	$(KUBECTL) wait vault.sec.upbound.io configuration-vault --for=condition=Ready --timeout 20m
+	# Check for readiness again to be sure because the first readiness 
+	# has previously prematurely returned.
+	$(KUBECTL) wait vault.sec.upbound.io configuration-vault --for=condition=Ready --timeout 20m
+	$(KUBECTL) -n vault port-forward vault-0 8200 &
+	test/verify.sh
 
 render:
 	crossplane beta render examples/vault.yaml apis/vault/composition.yaml examples/functions.yaml -r
