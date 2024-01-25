@@ -256,7 +256,7 @@ key_version    1
 Decrypt the information.
 ```
 vault write transit/decrypt/payment \
-    ciphertext="<COPY_THE_OUTPUT_CIPHER_FROM_ABOVE"
+    ciphertext="<COPY_THE_OUTPUT_CIPHER_FROM_ABOVE>"
 ```
 ```
 Key          Value
@@ -266,7 +266,7 @@ plaintext    MTExMS0yMjIyLTMzMzMtNDQ0NAo=
 
 Decode the base64 encoded plaintext.
 ```
-base64 --decode <<< "<COPY_THE_BASE64_ENCODED_PLAINTEXT_FROM_ABOVE"
+base64 --decode <<< "<COPY_THE_BASE64_ENCODED_PLAINTEXT_FROM_ABOVE>"
 ```
 
 ## Clean up
