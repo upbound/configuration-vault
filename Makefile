@@ -35,7 +35,6 @@ XPKGS = $(PROJECT_NAME)
 CROSSPLANE_NAMESPACE = upbound-system
 CROSSPLANE_ARGS = "--enable-usages"
 KIND_CLUSTER_NAME = "uxp"
-KIND_VERSION = "v1.27.3"
 -include build/makelib/local.xpkg.mk
 -include build/makelib/controlplane.mk
 
