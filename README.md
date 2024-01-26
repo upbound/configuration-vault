@@ -71,7 +71,7 @@ The directory contains the Crossplane compositions to setup and configure
 Vault.
 ```
 tree
-`
+```
 
 The Crossplane compositons are located in the `apis` directory.
 Crossplane compositions can be packaged up with information about
@@ -122,7 +122,7 @@ Use either one of the following options to install and configure Vault.
 [KUTTL](https://kuttl.dev/) tests and then validating the configuration.
 
 Resources can be seen using
-`crossplane beta render vault.sec.upbound.io configuration-vault`.
+`crossplane beta trace vault.sec.upbound.io configuration-vault`.
 This will produce an output like below. Note that there may be various
 interim stages leading up to all resources being available.
 ```
@@ -256,7 +256,7 @@ key_version    1
 Decrypt the information.
 ```
 vault write transit/decrypt/payment \
-    ciphertext="<COPY_THE_OUTPUT_CIPHER_FROM_ABOVE"
+    ciphertext="<COPY_THE_OUTPUT_CIPHER_FROM_ABOVE>"
 ```
 ```
 Key          Value
@@ -266,7 +266,7 @@ plaintext    MTExMS0yMjIyLTMzMzMtNDQ0NAo=
 
 Decode the base64 encoded plaintext.
 ```
-base64 --decode <<< "<COPY_THE_BASE64_ENCODED_PLAINTEXT_FROM_ABOVE"
+base64 --decode <<< "<COPY_THE_BASE64_ENCODED_PLAINTEXT_FROM_ABOVE>"
 ```
 
 ## Clean up
