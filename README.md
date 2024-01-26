@@ -128,25 +128,24 @@ interim stages leading up to all resources being available.
 ```
 NAME                                                                       SYNCED   READY   STATUS
 Vault/configuration-vault (default)                                        True     True    Available
-└─ XVault/configuration-vault-6fwtw                                        True     True    Available
-   ├─ XAuth/configuration-vault-6fwtw-q2xw9                                True     True    Available
+└─ XVault/configuration-vault-vlt5s                                        True     True    Available
+   ├─ XAuth/configuration-vault-vlt5s-7frmt                                True     True    Available
    │  ├─ Backend/configuration-vault-auth-backend-userpass                 True     True    Available
    │  └─ Endpoint/configuration-vault-auth-generic-endpoint                True     True    Available
-   ├─ XPolicy/configuration-vault-6fwtw-2mg2k                              True     True    Available
+   ├─ XPolicy/configuration-vault-vlt5s-dvggf                              True     True    Available
    │  ├─ Policy/configuration-vault-admin-policy                           True     True    Available
    │  └─ Policy/configuration-vault-eaas-client-policy                     True     True    Available
-   ├─ XSecret/configuration-vault-6fwtw-4x6k7                              True     True    Available
+   ├─ XSecret/configuration-vault-vlt5s-srvqn                              True     True    Available
    │  ├─ SecretBackendKey/configuration-vault-transit-secret-backend-key   True     True    Available
    │  ├─ Mount/configuration-vault-kv-v2-secret-mount                      True     True    Available
    │  └─ Mount/configuration-vault-transit-secret-mount                    True     True    Available
-   ├─ XVaultInstall/configuration-vault-6fwtw-vdjq9                        True     True    Available
-   │  ├─ Release/configuration-vault-6fwtw-55xbp                           True     True    Available
-   │  ├─ Object/configuration-vault-6fwtw-kff7z                            True     True    Available
-   │  ├─ Object/configuration-vault-6fwtw-mbqkv                            True     True    Available
-   │  ├─ Object/configuration-vault-6fwtw-nbpr6                            True     True    Available
-   │  └─ Object/configuration-vault-6fwtw-tn98k                            True     True    Available
-   └─ XVaultUser/configuration-vault-6fwtw-s97jk                           True     True    Available
-      └─ Object/configuration-vault-6fwtw-mg7hc                            True     True    Available
+   ├─ XVaultInstall/configuration-vault-vlt5s-nzfwq                        True     True    Available
+   │  ├─ Release/configuration-vault-vlt5s-qmn2q                           True     True    Available
+   │  ├─ Object/configuration-vault-vlt5s-hxjdm                            True     True    Available
+   │  ├─ Object/configuration-vault-vlt5s-qzg84                            True     True    Available
+   │  └─ Object/configuration-vault-vlt5s-xq74d                            True     True    Available
+   └─ XVaultUser/configuration-vault-vlt5s-d776c                           True     True    Available
+      └─ Object/configuration-vault-vlt5s-5pkhl                            True     True    Available
 ```
 
 ## Verify the configuration

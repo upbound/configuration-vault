@@ -78,15 +78,28 @@ uptest: $(UPTEST) $(KUBECTL) $(KUTTL)
 # - UPTEST_CLOUD_CREDENTIALS, cloud credentials for the provider being tested, e.g. export UPTEST_CLOUD_CREDENTIALS=$(cat ~/.aws/credentials)
 e2e: build controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME) uptest
 
+s = "False"
 bootstrap: build controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME)
 	test/setup.sh
 	$(KUBECTL) apply -f examples/vault.yaml
-	$(KUBECTL) wait vault.sec.upbound.io configuration-vault --for=condition=Ready --timeout 20m
-	# Check for readiness again to be sure because the first readiness 
-	# has previously prematurely returned.
-	$(KUBECTL) wait vault.sec.upbound.io configuration-vault --for=condition=Ready --timeout 20m
-	$(KUBECTL) -n vault port-forward vault-0 8200 &
+	s=$(s); \
+        while [ $${s} != "True" ] ; do \
+	    $(KUBECTL) wait vault.sec.upbound.io configuration-vault --for=condition=Ready --timeout 20m ; \
+	    sleep 3 ; \
+	    s=`$(KUBECTL) get vault.sec.upbound.io configuration-vault -o jsonpath='{.status.conditions[1].status}'|awk '{print $1}'`; \
+	    echo $$s ; \
+        done; \
+        true
+	$(KUBECTL) -n vault port-forward vault-0 8200 2>&1 >/dev/null &
+	crossplane beta trace vault.sec.upbound.io configuration-vault
 	test/verify.sh
+
+verify:
+	$(KUBECTL) -n vault port-forward vault-0 8200 2>&1 >/dev/null &
+	test/verify.sh
+
+cleanup:
+	kind delete cluster --name uxp
 
 render:
 	crossplane beta render examples/vault.yaml apis/vault/composition.yaml examples/functions.yaml -r
