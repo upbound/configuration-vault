@@ -33,9 +33,8 @@ XPKGS = $(PROJECT_NAME)
 -include build/makelib/xpkg.mk
 
 CROSSPLANE_NAMESPACE = upbound-system
-CROSSPLANE_ARGS = "--enable-usages"
+CROSSPLANE_ARGS = "--enable-usages,--debug"
 KIND_CLUSTER_NAME = "uxp"
-KIND_VERSION = "v1.27.3"
 -include build/makelib/local.xpkg.mk
 -include build/makelib/controlplane.mk
 
@@ -71,22 +70,35 @@ build.init: $(UP)
 #   You can check the basic implementation here: https://github.com/upbound/uptest/blob/main/internal/templates/01-delete.yaml.tmpl.
 uptest: $(UPTEST) $(KUBECTL) $(KUTTL)
 	@$(INFO) running automated tests
-	@KUBECTL=$(KUBECTL) CROSSPLANE_NAMESPACE=$(CROSSPLANE_NAMESPACE) KUTTL=$(KUTTL) $(UPTEST) e2e examples/vault.yaml --setup-script=test/setup.sh --skip-delete --default-timeout=3600 || $(FAIL)
+	@KUBECTL=$(KUBECTL) CROSSPLANE_NAMESPACE=$(CROSSPLANE_NAMESPACE) KUTTL=$(KUTTL) $(UPTEST) e2e examples/vault.yaml --setup-script=test/setup.sh --default-timeout=3600 || $(FAIL)
 	@$(OK) running automated tests
 
 # This target requires the following environment variables to be set:
 # - UPTEST_CLOUD_CREDENTIALS, cloud credentials for the provider being tested, e.g. export UPTEST_CLOUD_CREDENTIALS=$(cat ~/.aws/credentials)
 e2e: build controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME) uptest
 
+s = "False"
 bootstrap: build controlplane.up local.xpkg.deploy.configuration.$(PROJECT_NAME)
 	test/setup.sh
 	$(KUBECTL) apply -f examples/vault.yaml
-	$(KUBECTL) wait vault.sec.upbound.io configuration-vault --for=condition=Ready --timeout 20m
-	# Check for readiness again to be sure because the first readiness 
-	# has previously prematurely returned.
-	$(KUBECTL) wait vault.sec.upbound.io configuration-vault --for=condition=Ready --timeout 20m
-	$(KUBECTL) -n vault port-forward vault-0 8200 &
+	s=$(s); \
+        while [ $${s} != "True" ] ; do \
+	    $(KUBECTL) wait vault.sec.upbound.io configuration-vault --for=condition=Ready --timeout 20m ; \
+	    sleep 3 ; \
+	    s=`$(KUBECTL) get vault.sec.upbound.io configuration-vault -o jsonpath='{.status.conditions[1].status}'|awk '{print $1}'`; \
+	    echo $$s ; \
+        done; \
+        true
+	$(KUBECTL) -n vault port-forward vault-0 8200 2>&1 >/dev/null &
+	crossplane beta trace vault.sec.upbound.io configuration-vault
 	test/verify.sh
+
+verify:
+	$(KUBECTL) -n vault port-forward vault-0 8200 2>&1 >/dev/null &
+	test/verify.sh
+
+cleanup:
+	kind delete cluster --name uxp
 
 render:
 	crossplane beta render examples/vault.yaml apis/vault/composition.yaml examples/functions.yaml -r

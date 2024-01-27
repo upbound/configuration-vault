@@ -78,4 +78,21 @@ spec:
               - fromFieldPath: status.atProvider
                 toFieldPath: status.vaultGenericEndpoint
                 type: ToCompositeFieldPath
+          - base:
+              apiVersion: apiextensions.crossplane.io/v1alpha1
+              kind: Usage
+              spec:
+                of:
+                  apiVersion: auth.vault.upbound.io/v1alpha1
+                  kind: Backend
+                  resourceSelector:
+                    matchControllerRef: true
+                by:
+                  apiVersion: generic.vault.upbound.io/v1alpha1
+                  kind: Endpoint
+                  resourceSelector:
+                    matchControllerRef: true
+            readinessChecks:
+              - type: None
+            name: usageAuthBackendByGenericEndpoint
       step: patch-and-transform
