@@ -4,6 +4,7 @@ kind: CompositeResourceDefinition
 metadata:
   name: xvaultinstalls.sec.upbound.io
 spec:
+  defaultCompositeDeletePolicy: Foreground
   group: sec.upbound.io
   names:
     kind: XVaultInstall

@@ -157,4 +157,38 @@ spec:
             readinessChecks:
               - type: None
             name: usageXVaultInstallByXSecret
+          - base:
+              apiVersion: apiextensions.crossplane.io/v1alpha1
+              kind: Usage
+              spec:
+                of:
+                  apiVersion: sec.upbound.io/v1alpha1
+                  kind: XSecret
+                  resourceSelector:
+                    matchControllerRef: true
+                by:
+                  apiVersion: sec.upbound.io/v1alpha1
+                  kind: XAuth
+                  resourceSelector:
+                    matchControllerRef: true
+            readinessChecks:
+              - type: None
+            name: usageXSecretByXAuth
+          - base:
+              apiVersion: apiextensions.crossplane.io/v1alpha1
+              kind: Usage
+              spec:
+                of:
+                  apiVersion: sec.upbound.io/v1alpha1
+                  kind: XVaultUser
+                  resourceSelector:
+                    matchControllerRef: true
+                by:
+                  apiVersion: sec.upbound.io/v1alpha1
+                  kind: XAuth
+                  resourceSelector:
+                    matchControllerRef: true
+            readinessChecks:
+              - type: None
+            name: usageXVaultUserByXAuth
       step: patch-and-transform

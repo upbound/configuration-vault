@@ -4,6 +4,7 @@ kind: CompositeResourceDefinition
 metadata:
   name: xauths.sec.upbound.io
 spec:
+  defaultCompositeDeletePolicy: Foreground
   group: sec.upbound.io
   names:
     kind: XAuth
