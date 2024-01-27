@@ -106,4 +106,55 @@ spec:
               - fromFieldPath: spec.parameters.providerConfigName
                 toFieldPath: spec.parameters.providerConfigName
                 type: FromCompositeFieldPath
+          - base:
+              apiVersion: apiextensions.crossplane.io/v1alpha1
+              kind: Usage
+              spec:
+                of:
+                  apiVersion: sec.upbound.io/v1alpha1
+                  kind: XVaultInstall
+                  resourceSelector:
+                    matchControllerRef: true
+                by:
+                  apiVersion: sec.upbound.io/v1alpha1
+                  kind: XAuth
+                  resourceSelector:
+                    matchControllerRef: true
+            readinessChecks:
+              - type: None
+            name: usageXVaultInstallByXAuth
+          - base:
+              apiVersion: apiextensions.crossplane.io/v1alpha1
+              kind: Usage
+              spec:
+                of:
+                  apiVersion: sec.upbound.io/v1alpha1
+                  kind: XVaultInstall
+                  resourceSelector:
+                    matchControllerRef: true
+                by:
+                  apiVersion: sec.upbound.io/v1alpha1
+                  kind: XPolicy
+                  resourceSelector:
+                    matchControllerRef: true
+            readinessChecks:
+              - type: None
+            name: usageXVaultInstallByXPolicy
+          - base:
+              apiVersion: apiextensions.crossplane.io/v1alpha1
+              kind: Usage
+              spec:
+                of:
+                  apiVersion: sec.upbound.io/v1alpha1
+                  kind: XVaultInstall
+                  resourceSelector:
+                    matchControllerRef: true
+                by:
+                  apiVersion: sec.upbound.io/v1alpha1
+                  kind: XSecret
+                  resourceSelector:
+                    matchControllerRef: true
+            readinessChecks:
+              - type: None
+            name: usageXVaultInstallByXSecret
       step: patch-and-transform

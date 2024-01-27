@@ -128,4 +128,21 @@ spec:
               - fromFieldPath: spec.parameters.providerConfigName
                 toFieldPath: spec.providerConfigRef.name
                 type: FromCompositeFieldPath
+          - base:
+              apiVersion: apiextensions.crossplane.io/v1alpha1
+              kind: Usage
+              spec:
+                of:
+                  apiVersion: kubernetes.crossplane.io/v1alpha1
+                  kind: Object
+                  resourceSelector:
+                    matchControllerRef: true
+                by:
+                  apiVersion: helm.crossplane.io/v1beta1
+                  kind: Release
+                  resourceSelector:
+                    matchControllerRef: true
+            readinessChecks:
+              - type: None
+            name: usageXVaultInstallObjectsByHelmRelease
       step: patch-and-transform

@@ -128,24 +128,27 @@ interim stages leading up to all resources being available.
 ```
 NAME                                                                       SYNCED   READY   STATUS
 Vault/configuration-vault (default)                                        True     True    Available
-└─ XVault/configuration-vault-vlt5s                                        True     True    Available
-   ├─ XAuth/configuration-vault-vlt5s-7frmt                                True     True    Available
+└─ XVault/configuration-vault-z728c                                        True     True    Available
+   ├─ Usage/configuration-vault-z728c-flq88                                -        True    Available
+   ├─ Usage/configuration-vault-z728c-k5jlh                                -        True    Available
+   ├─ Usage/configuration-vault-z728c-wm7l2                                -        True    Available
+   ├─ XAuth/configuration-vault-z728c-576ks                                True     True    Available
    │  ├─ Backend/configuration-vault-auth-backend-userpass                 True     True    Available
    │  └─ Endpoint/configuration-vault-auth-generic-endpoint                True     True    Available
-   ├─ XPolicy/configuration-vault-vlt5s-dvggf                              True     True    Available
+   ├─ XPolicy/configuration-vault-z728c-x5wmt                              True     True    Available
    │  ├─ Policy/configuration-vault-admin-policy                           True     True    Available
    │  └─ Policy/configuration-vault-eaas-client-policy                     True     True    Available
-   ├─ XSecret/configuration-vault-vlt5s-srvqn                              True     True    Available
+   ├─ XSecret/configuration-vault-z728c-phtv6                              True     True    Available
    │  ├─ SecretBackendKey/configuration-vault-transit-secret-backend-key   True     True    Available
    │  ├─ Mount/configuration-vault-kv-v2-secret-mount                      True     True    Available
    │  └─ Mount/configuration-vault-transit-secret-mount                    True     True    Available
-   ├─ XVaultInstall/configuration-vault-vlt5s-nzfwq                        True     True    Available
-   │  ├─ Release/configuration-vault-vlt5s-qmn2q                           True     True    Available
-   │  ├─ Object/configuration-vault-vlt5s-hxjdm                            True     True    Available
-   │  ├─ Object/configuration-vault-vlt5s-qzg84                            True     True    Available
-   │  └─ Object/configuration-vault-vlt5s-xq74d                            True     True    Available
-   └─ XVaultUser/configuration-vault-vlt5s-d776c                           True     True    Available
-      └─ Object/configuration-vault-vlt5s-5pkhl                            True     True    Available
+   ├─ XVaultInstall/configuration-vault-z728c-kgmv8                        True     True    Available
+   │  ├─ Release/configuration-vault-z728c-24hsq                           True     True    Available
+   │  ├─ Object/configuration-vault-z728c-cfbqs                            True     True    Available
+   │  ├─ Object/configuration-vault-z728c-hbdqx                            True     True    Available
+   │  └─ Object/configuration-vault-z728c-hwktr                            True     True    Available
+   └─ XVaultUser/configuration-vault-z728c-kc5w6                           True     True    Available
+      └─ Object/configuration-vault-z728c-rhsqc                            True     True    Available
 ```
 
 ## Verify the configuration
@@ -271,5 +274,5 @@ base64 --decode <<< "<COPY_THE_BASE64_ENCODED_PLAINTEXT_FROM_ABOVE>"
 ## Clean up
 Use the following command to delete the local demo cluster.
 ```
-kind delete cluster --name uxp
+make cleanup
 ```

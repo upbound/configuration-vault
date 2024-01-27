@@ -33,7 +33,7 @@ XPKGS = $(PROJECT_NAME)
 -include build/makelib/xpkg.mk
 
 CROSSPLANE_NAMESPACE = upbound-system
-CROSSPLANE_ARGS = "--enable-usages"
+CROSSPLANE_ARGS = "--enable-usages,--debug"
 KIND_CLUSTER_NAME = "uxp"
 -include build/makelib/local.xpkg.mk
 -include build/makelib/controlplane.mk
@@ -70,7 +70,7 @@ build.init: $(UP)
 #   You can check the basic implementation here: https://github.com/upbound/uptest/blob/main/internal/templates/01-delete.yaml.tmpl.
 uptest: $(UPTEST) $(KUBECTL) $(KUTTL)
 	@$(INFO) running automated tests
-	@KUBECTL=$(KUBECTL) CROSSPLANE_NAMESPACE=$(CROSSPLANE_NAMESPACE) KUTTL=$(KUTTL) $(UPTEST) e2e examples/vault.yaml --setup-script=test/setup.sh --skip-delete --default-timeout=3600 || $(FAIL)
+	@KUBECTL=$(KUBECTL) CROSSPLANE_NAMESPACE=$(CROSSPLANE_NAMESPACE) KUTTL=$(KUTTL) $(UPTEST) e2e examples/vault.yaml --setup-script=test/setup.sh --default-timeout=3600 || $(FAIL)
 	@$(OK) running automated tests
 
 # This target requires the following environment variables to be set:
