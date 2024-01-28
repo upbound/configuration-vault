@@ -128,27 +128,31 @@ interim stages leading up to all resources being available.
 ```
 NAME                                                                       SYNCED   READY   STATUS
 Vault/configuration-vault (default)                                        True     True    Available
-└─ XVault/configuration-vault-z728c                                        True     True    Available
-   ├─ Usage/configuration-vault-z728c-flq88                                -        True    Available
-   ├─ Usage/configuration-vault-z728c-k5jlh                                -        True    Available
-   ├─ Usage/configuration-vault-z728c-wm7l2                                -        True    Available
-   ├─ XAuth/configuration-vault-z728c-576ks                                True     True    Available
+└─ XVault/configuration-vault-r9xmg                                        True     True    Available
+   ├─ Usage/configuration-vault-r9xmg-77cpl                                -        True    Available
+   ├─ Usage/configuration-vault-r9xmg-qj2r2                                -        True    Available
+   ├─ Usage/configuration-vault-r9xmg-rxz68                                -        True    Available
+   ├─ Usage/configuration-vault-r9xmg-thxf7                                -        True    Available
+   ├─ Usage/configuration-vault-r9xmg-v8tf5                                -        True    Available
+   ├─ XAuth/configuration-vault-r9xmg-qswjv                                True     True    Available
+   │  ├─ Usage/configuration-vault-r9xmg-hh52k                             -        True    Available
    │  ├─ Backend/configuration-vault-auth-backend-userpass                 True     True    Available
    │  └─ Endpoint/configuration-vault-auth-generic-endpoint                True     True    Available
-   ├─ XPolicy/configuration-vault-z728c-x5wmt                              True     True    Available
+   ├─ XPolicy/configuration-vault-r9xmg-ct8jb                              True     True    Available
    │  ├─ Policy/configuration-vault-admin-policy                           True     True    Available
    │  └─ Policy/configuration-vault-eaas-client-policy                     True     True    Available
-   ├─ XSecret/configuration-vault-z728c-phtv6                              True     True    Available
+   ├─ XSecret/configuration-vault-r9xmg-f7tz2                              True     True    Available
    │  ├─ SecretBackendKey/configuration-vault-transit-secret-backend-key   True     True    Available
    │  ├─ Mount/configuration-vault-kv-v2-secret-mount                      True     True    Available
    │  └─ Mount/configuration-vault-transit-secret-mount                    True     True    Available
-   ├─ XVaultInstall/configuration-vault-z728c-kgmv8                        True     True    Available
-   │  ├─ Release/configuration-vault-z728c-24hsq                           True     True    Available
-   │  ├─ Object/configuration-vault-z728c-cfbqs                            True     True    Available
-   │  ├─ Object/configuration-vault-z728c-hbdqx                            True     True    Available
-   │  └─ Object/configuration-vault-z728c-hwktr                            True     True    Available
-   └─ XVaultUser/configuration-vault-z728c-kc5w6                           True     True    Available
-      └─ Object/configuration-vault-z728c-rhsqc                            True     True    Available
+   ├─ XVaultInstall/configuration-vault-r9xmg-8x69p                        True     True    Available
+   │  ├─ Usage/configuration-vault-r9xmg-h9fbp                             -        True    Available
+   │  ├─ Release/configuration-vault-r9xmg-rptpw                           True     True    Available
+   │  ├─ Object/configuration-vault-r9xmg-kh4ss                            True     True    Available
+   │  ├─ Object/configuration-vault-r9xmg-kndvh                            True     True    Available
+   │  └─ Object/configuration-vault-r9xmg-t8qnp                            True     True    Available
+   └─ XVaultUser/configuration-vault-r9xmg-m8hlp                           True     True    Available
+      └─ Object/configuration-vault-r9xmg-xgkw2                            True     True    Available
 ```
 
 ## Verify the configuration
