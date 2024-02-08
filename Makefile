@@ -12,7 +12,7 @@ PLATFORMS ?= linux_amd64
 # Setup Kubernetes tools
 
 KUBECTL_VERSION = v1.27.3
-UP_VERSION = v0.21.0
+UP_VERSION = v0.24.1
 UP_CHANNEL = stable
 UPTEST_VERSION = v0.10.0
 -include build/makelib/k8s_tools.mk
