@@ -14,7 +14,7 @@ PLATFORMS ?= linux_amd64
 KUBECTL_VERSION = v1.27.3
 UP_VERSION = v0.21.0
 UP_CHANNEL = stable
-UPTEST_VERSION = v0.10.0
+UPTEST_VERSION = v0.11.0
 -include build/makelib/k8s_tools.mk
 # ====================================================================================
 # Setup XPKG
