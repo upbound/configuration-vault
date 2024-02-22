@@ -29,6 +29,6 @@ spec:
     - provider: xpkg.upbound.io/crossplane-contrib/provider-kubernetes
       # renovate: datasource=github-releases depName=crossplane-contrib/provider-kubernetes
       version: "v0.11.4"
-    - function: xpkg.upbound.io/upbound/function-patch-and-transform
+    - function: xpkg.upbound.io/crossplane-contrib/function-patch-and-transform
       # renovate: datasource=github-releases depName=upbound/function-patch-and-transform
       version: "v0.2.1"
